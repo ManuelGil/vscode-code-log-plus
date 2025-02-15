@@ -1,0 +1,344 @@
+{
+	"name": "vscode-code-log-plus",
+	"displayName": "codeLog+",
+	"description": "CodeLog+ is a Visual Studio Code extension that helps you insert, remove, highlight, comment, and uncomment log statements in your code.",
+	"version": "1.0.0",
+	"icon": "icon.png",
+	"license": "MIT",
+	"publisher": "imgildev",
+	"author": "ManuelGil",
+	"sponsor": {
+		"url": "https://github.com/sponsors/ManuelGil"
+	},
+	"engines": {
+		"vscode": "^1.88.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"keywords": [
+		"console log",
+		"logging",
+		"debugging",
+		"console output",
+		"debug helper",
+		"log generator",
+		"log insertion",
+		"JavaScript",
+		"TypeScript",
+		"Python",
+		"Dart",
+		"C#",
+		"Java",
+		"PHP",
+		"C++",
+		"custom logs",
+		"console.log",
+		"print statement",
+		"log automation",
+		"log template",
+		"VS Code extension",
+		"remove logs",
+		"debug console",
+		"customizable logging",
+		"log formatting",
+		"log prefix",
+		"log suffix",
+		"log level",
+		"auto log insertion",
+		"quick log",
+		"log shortcuts",
+		"console.warn",
+		"console.error",
+		"debug print",
+		"code debugging",
+		"runtime log",
+		"vscode"
+	],
+	"homepage": "https://github.com/ManuelGil/vscode-code-log-plus",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ManuelGil/vscode-code-log-plus.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ManuelGil/vscode-code-log-plus/issues"
+	},
+	"activationEvents": [],
+	"main": "./out/extension.js",
+	"l10n": "./l10n",
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "CodeLog+ Configuration",
+			"properties": {
+				"codeLogPlus.enable": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%codeLogPlus.enable.description%"
+				},
+				"codeLogPlus.defaultLanguage": {
+					"type": "string",
+					"default": "javascript",
+					"enum": [
+						"javascript",
+						"typescript",
+						"java",
+						"csharp",
+						"php",
+						"dart"
+					],
+					"enumDescriptions": [
+						"JavaScript",
+						"TypeScript",
+						"Java",
+						"C#",
+						"PHP",
+						"Dart"
+					],
+					"scope": "resource",
+					"description": "%codeLogPlus.defaultLanguage.description%"
+				},
+				"codeLogPlus.logCommand": {
+					"type": "string",
+					"default": "",
+					"scope": "resource",
+					"description": "%codeLogPlus.logCommand.description%"
+				},
+				"codeLogPlus.isLogMessageWrapped": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.isLogMessageWrapped.description%"
+				},
+				"codeLogPlus.logMessagePrefix": {
+					"type": "string",
+					"default": "🔍",
+					"scope": "resource",
+					"description": "%codeLogPlus.logMessagePrefix.description%"
+				},
+				"codeLogPlus.messageLogDelimiter": {
+					"type": "string",
+					"default": "~",
+					"scope": "resource",
+					"description": "%codeLogPlus.messageLogDelimiter.description%"
+				},
+				"codeLogPlus.messageLogSuffix": {
+					"type": "string",
+					"default": ":",
+					"scope": "resource",
+					"description": "%codeLogPlus.messageLogSuffix.description%"
+				},
+				"codeLogPlus.isSemicolonRequired": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.isSemicolonRequired.description%"
+				},
+				"codeLogPlus.addEmptyLineBeforeLogMessage": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.addEmptyLineBeforeLogMessage.description%"
+				},
+				"codeLogPlus.addEmptyLineAfterLog": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.addEmptyLineAfterLog.description%"
+				},
+				"codeLogPlus.useSingleQuotes": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.useSingleQuotes.description%"
+				},
+				"codeLogPlus.customLogTemplates": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"language": {
+								"type": "string",
+								"enum": [
+									"javascript",
+									"typescript",
+									"java",
+									"csharp",
+									"php",
+									"dart"
+								],
+								"enumDescriptions": [
+									"JavaScript",
+									"TypeScript",
+									"Java",
+									"C#",
+									"PHP",
+									"Dart"
+								],
+								"description": "%codeLogPlus.customLogTemplates.language.description%"
+							},
+							"template": {
+								"type": "string",
+								"description": "%codeLogPlus.customLogTemplates.template.description%"
+							}
+						},
+						"required": [
+							"language",
+							"template"
+						]
+					},
+					"default": [],
+					"scope": "resource",
+					"description": "%codeLogPlus.customLogTemplates.description%"
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "codeLogPlus.insertLog",
+				"title": "%codeLogPlus.insertLog.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.removeLogs",
+				"title": "%codeLogPlus.removeLogs.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.highlightLogs",
+				"title": "%codeLogPlus.highlightLogs.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.clearHighlights",
+				"title": "%codeLogPlus.clearHighlights.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.commentLogs",
+				"title": "%codeLogPlus.commentLogs.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.uncommentLogs",
+				"title": "%codeLogPlus.uncommentLogs.title%",
+				"category": "codeLog+"
+			}
+		],
+		"keybindings": [
+			{
+				"key": "ctrl+alt+l",
+				"command": "codeLogPlus.insertLog",
+				"when": "editorTextFocus",
+				"description": "Insert log statement for selected variable (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+l",
+				"command": "codeLogPlus.insertLog",
+				"when": "editorTextFocus",
+				"description": "Insert log statement for selected variable (macOS)"
+			},
+			{
+				"key": "ctrl+alt+shift+l",
+				"command": "codeLogPlus.removeLogs",
+				"when": "editorTextFocus",
+				"description": "Remove all inserted log statements (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+shift+l",
+				"command": "codeLogPlus.removeLogs",
+				"when": "editorTextFocus",
+				"description": "Remove all inserted log statements (macOS)"
+			},
+			{
+				"key": "ctrl+alt+k",
+				"command": "codeLogPlus.highlightLogs",
+				"when": "editorTextFocus",
+				"description": "Highlight all inserted log statements (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+k",
+				"command": "codeLogPlus.highlightLogs",
+				"when": "editorTextFocus",
+				"description": "Highlight all inserted log statements (macOS)"
+			},
+			{
+				"key": "ctrl+alt+shift+k",
+				"command": "codeLogPlus.clearHighlights",
+				"when": "editorTextFocus",
+				"description": "Unhighlight all previously highlighted log statements (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+shift+k",
+				"command": "codeLogPlus.clearHighlights",
+				"when": "editorTextFocus",
+				"description": "Unhighlight all previously highlighted log statements (macOS)"
+			},
+			{
+				"key": "ctrl+alt+,",
+				"command": "codeLogPlus.commentLogs",
+				"when": "editorTextFocus",
+				"description": "Comment out all inserted log statements (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+,",
+				"command": "codeLogPlus.commentLogs",
+				"when": "editorTextFocus",
+				"description": "Comment out all inserted log statements (macOS)"
+			},
+			{
+				"key": "ctrl+alt+shift+,",
+				"command": "codeLogPlus.uncommentLogs",
+				"when": "editorTextFocus",
+				"description": "Uncomment all previously commented log statements (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+shift+,",
+				"command": "codeLogPlus.uncommentLogs",
+				"when": "editorTextFocus",
+				"description": "Uncomment all previously commented log statements (macOS)"
+			}
+		],
+		"jsonValidation": [
+			{
+				"fileMatch": ".vscode/settings.json",
+				"url": "./schemas/config.schema.json"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "rimraf out && tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"format": "biome format --write",
+		"lint": "biome lint --write",
+		"lint:check": "biome check --write",
+		"test": "node ./out/test/runTest.js",
+		"compodoc": "npx compodoc -p tsconfig.doc.json -d compodoc --theme readthedocs -s",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@commitlint/cli": "^19.6.0",
+		"@commitlint/config-conventional": "^19.6.0",
+		"@compodoc/compodoc": "^1.1.26",
+		"@types/mocha": "^10.0.10",
+		"@types/mustache": "^4.2.5",
+		"@types/node": "^22.10.0",
+		"@types/vscode": "^1.88.0",
+		"@vscode/l10n-dev": "^0.0.35",
+		"@vscode/test-cli": "^0.0.10",
+		"@vscode/test-electron": "^2.4.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.2.10",
+		"mocha": "^10.8.2",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.7.2",
+		"vscode-test": "^1.6.1"
+	},
+	"dependencies": {
+		"mustache": "^4.2.0"
+	}
+}

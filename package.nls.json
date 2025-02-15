@@ -1,0 +1,22 @@
+{
+	"codeLogPlus.enable.description": "Enable or disable the extension.",
+	"codeLogPlus.defaultLanguage.description": "Default language to be used for logging.",
+	"codeLogPlus.logCommand.description": "The command used for logging messages.",
+	"codeLogPlus.isLogMessageWrapped.description": "Determine whether to wrap the log message with additional formatting or markers.",
+	"codeLogPlus.logMessagePrefix.description": "Prefix added at the beginning of the log message.",
+	"codeLogPlus.messageLogDelimiter.description": "Delimiter to separate different elements inside the log message (e.g., filename, line number, class, function, variable).",
+	"codeLogPlus.messageLogSuffix.description": "Suffix added at the end of the log message.",
+	"codeLogPlus.isSemicolonRequired.description": "Append a semicolon at the end of the log statement if required by the programming language.",
+	"codeLogPlus.addEmptyLineBeforeLogMessage.description": "Insert an empty line before the log message for improved readability.",
+	"codeLogPlus.addEmptyLineAfterLog.description": "Insert an empty line after the log message for improved readability.",
+	"codeLogPlus.useSingleQuotes.description": "Use single quotes instead of double quotes in the log message.",
+	"codeLogPlus.customLogTemplates.language.description": "The programming language for which this template applies (e.g., 'javascript', 'python', 'dart').",
+	"codeLogPlus.customLogTemplates.template.description": "The log message template. Use variables like {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, etc. Example: \"{{logCommand}}({{{quote}}}{{logMessagePrefix}} {{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}})\"",
+	"codeLogPlus.customLogTemplates.description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{{fileName}}}, {{lineNumber}}).",
+	"codeLogPlus.insertLog.title": "Insert log",
+	"codeLogPlus.removeLogs.title": "Remove logs",
+	"codeLogPlus.highlightLogs.title": "Highlight logs",
+	"codeLogPlus.clearHighlights.title": "Clear highlights",
+	"codeLogPlus.commentLogs.title": "Comment logs",
+	"codeLogPlus.uncommentLogs.title": "Uncomment logs"
+}

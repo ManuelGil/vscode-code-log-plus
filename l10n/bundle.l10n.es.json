@@ -1,0 +1,21 @@
+{
+	"No workspace folders are open. Please open a workspace folder to use this extension": "No hay carpetas de espacio de trabajo abiertas. Abra una carpeta de espacio de trabajo para usar esta extensión",
+	"Select a workspace folder to use. This folder will be used to load workspace-specific configuration for the extension": "Selecciona una carpeta de espacio de trabajo para usar. Esta carpeta se utilizará para cargar la configuración específica del espacio de trabajo para la extensión",
+	"{0} is now enabled and ready to use": "{0} ahora está habilitado y listo para usar",
+	"{0} is now disabled": "{0} ahora está deshabilitado",
+	"{0} is disabled in settings. Enable it to use its features": "{0} está deshabilitado en la configuración. Habilítelo para usar sus funciones",
+	"Welcome to {0} version {1}! The extension is now active": "¡Bienvenido a {0} versión {1}! La extensión ahora está activa",
+	"New version of {0} is available. Check out the release notes for version {1}": "Hay disponible una nueva versión de {0}. Consulte las notas de la versión {1}",
+	"Release Notes": "Notas de la versión",
+	"Dismiss": "Descartar",
+	"No active editor available!": "¡No hay editor activo disponible!",
+	"No logs found for removal": "No se encontraron registros para eliminar",
+	"Select logs to remove": "Selecciona los registros a eliminar",
+	"No logs selected for removal": "No se han seleccionado registros para eliminar",
+	"Selected logs have been removed": "Los registros seleccionados se han eliminado",
+	"This is a log statement": "Este es un registro",
+	"You can remove the log statements by using the command: \"Remove Logs\"": "Puedes eliminar los registros utilizando el comando: \"Eliminar registros\"",
+	"No logs found in the active editor": "No se encontraron registros en el editor activo",
+	"Selected logs have been commented": "Los registros seleccionados se han comentado",
+	"Selected logs have been uncommented": "Los registros seleccionados se han descomentado"
+}

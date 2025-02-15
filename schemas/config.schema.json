@@ -1,0 +1,124 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"codeLogPlus.enable": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "Enable or disable the extension."
+		},
+		"codeLogPlus.defaultLanguage": {
+			"type": "string",
+			"default": "javascript",
+			"enum": [
+				"javascript",
+				"typescript",
+				"java",
+				"csharp",
+				"php",
+				"dart"
+			],
+			"enumDescriptions": [
+				"JavaScript",
+				"TypeScript",
+				"Java",
+				"C#",
+				"PHP",
+				"Dart"
+			],
+			"scope": "resource",
+			"description": "Default language to be used for logging."
+		},
+		"codeLogPlus.logCommand": {
+			"type": "string",
+			"default": "",
+			"scope": "resource",
+			"description": "The command used for logging messages."
+		},
+		"codeLogPlus.isLogMessageWrapped": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Determine whether to wrap the log message with additional formatting or markers."
+		},
+		"codeLogPlus.logMessagePrefix": {
+			"type": "string",
+			"default": "🔍",
+			"scope": "resource",
+			"description": "Prefix added at the beginning of the log message."
+		},
+		"codeLogPlus.messageLogDelimiter": {
+			"type": "string",
+			"default": "~",
+			"scope": "resource",
+			"description": "Delimiter to separate different elements inside the log message (e.g., filename, line number, class, function, variable)."
+		},
+		"codeLogPlus.messageLogSuffix": {
+			"type": "string",
+			"default": ":",
+			"scope": "resource",
+			"description": "Suffix added at the end of the log message."
+		},
+		"codeLogPlus.isSemicolonRequired": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Append a semicolon at the end of the log statement if required by the programming language."
+		},
+		"codeLogPlus.addEmptyLineBeforeLogMessage": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Insert an empty line before the log message for improved readability."
+		},
+		"codeLogPlus.addEmptyLineAfterLog": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Insert an empty line after the log message for improved readability."
+		},
+		"codeLogPlus.useSingleQuotes": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Use single quotes instead of double quotes in the log message."
+		},
+		"codeLogPlus.customLogTemplates": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"language": {
+						"type": "string",
+						"enum": [
+							"javascript",
+							"typescript",
+							"java",
+							"csharp",
+							"php",
+							"dart"
+						],
+						"enumDescriptions": [
+							"JavaScript",
+							"TypeScript",
+							"Java",
+							"C#",
+							"PHP",
+							"Dart"
+						],
+						"description": "The programming language for which this template applies (e.g., 'javascript', 'python', 'dart')."
+					},
+					"template": {
+						"type": "string",
+						"description": "The log message template. Use variables like {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, etc. Example: \"{{logCommand}}({{{quote}}}{{logMessagePrefix}} {{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}})\""
+					}
+				},
+				"required": ["language", "template"]
+			},
+			"default": [],
+			"scope": "resource",
+			"description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}})."
+		}
+	}
+}
