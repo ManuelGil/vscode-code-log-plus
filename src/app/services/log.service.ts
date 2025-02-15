@@ -196,6 +196,8 @@ export class LogService {
       content = `${content}\n`;
     }
 
+    content = `${content}\n`;
+
     const snippet = mustache.render(content, {
       indent,
       logCommand: logCommand || defaultLogCommand?.command || 'console.log',
