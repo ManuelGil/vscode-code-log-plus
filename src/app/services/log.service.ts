@@ -1,5 +1,6 @@
 import * as mustache from 'mustache';
 import { ExtensionConfig } from '../configs';
+import { languages } from 'vscode';
 
 /**
  * The LogService class.
@@ -27,30 +28,16 @@ export class LogService {
    * this.defaultLogCommand;
    */
   private defaultLogCommand = [
-    {
-      language: 'javascript',
-      command: 'console.log',
-    },
-    {
-      language: 'typescript',
-      command: 'console.log',
-    },
-    {
-      language: 'java',
-      command: 'System.out.println',
-    },
-    {
-      language: 'csharp',
-      command: 'Console.WriteLine',
-    },
-    {
-      language: 'php',
-      command: 'echo',
-    },
-    {
-      language: 'dart',
-      command: 'print',
-    },
+    { language: 'javascript', command: 'console.log' },
+    { language: 'typescript', command: 'console.log' },
+    { language: 'java', command: 'System.out.println' },
+    { language: 'csharp', command: 'Console.WriteLine' },
+    { language: 'php', command: 'echo' },
+    { language: 'dart', command: 'print' },
+    { language: 'python', command: 'print' },
+    { language: 'cpp', command: 'std::cout' },
+    { language: 'ruby', command: 'puts' },
+    { language: 'go', command: 'fmt.Println' },
   ];
 
   /**
@@ -92,6 +79,26 @@ export class LogService {
       language: 'dart',
       template:
         '{{indent}}{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{messageLogDelimiter}}{{{fileName}}}:{{lineNumber}}{{messageLogDelimiter}}{{variableName}}{{messageLogSuffix}}{{{quote}}} + {{variableName}});',
+    },
+    {
+      language: 'python',
+      template:
+        '{{indent}}{{logCommand}}(f{{quote}}{{logMessagePrefix}}{{messageLogDelimiter}}{{{fileName}}}:{{lineNumber}}{{messageLogDelimiter}}{{{literalOpen}}}{{variableName}}{{{literalClose}}}{{messageLogSuffix}}{{quote}});',
+    },
+    {
+      language: 'cpp',
+      template:
+        '{{indent}}{{logCommand}} << {{{quote}}}{{logMessagePrefix}}{{messageLogDelimiter}}{{{fileName}}}:{{lineNumber}}{{messageLogDelimiter}}{{variableName}}{{messageLogSuffix}}{{{quote}}} << {{variableName}} << std::endl;',
+    },
+    {
+      language: 'ruby',
+      template:
+        '{{indent}}{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{messageLogDelimiter}}{{{fileName}}}:{{lineNumber}}{{messageLogDelimiter}}#{{{literalOpen}}}{{variableName}}{{{literalClose}}}{{messageLogSuffix}}{{{quote}}});',
+    },
+    {
+      language: 'go',
+      template:
+        '{{indent}}{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{messageLogDelimiter}}{{{fileName}}}:{{lineNumber}}{{messageLogDelimiter}}{{variableName}}{{messageLogSuffix}}{{{quote}}}, {{variableName}})',
     },
   ];
 
@@ -152,6 +159,8 @@ export class LogService {
       addEmptyLineBeforeLogMessage,
       addEmptyLineAfterLog,
       useSingleQuotes,
+      literalOpen,
+      literalClose,
       customLogTemplates,
     } = this.config;
 
@@ -210,6 +219,8 @@ export class LogService {
       lineNumber,
       variableName,
       messageLogSuffix,
+      literalOpen,
+      literalClose,
     });
 
     return snippet;

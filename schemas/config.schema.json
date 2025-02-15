@@ -17,7 +17,11 @@
 				"java",
 				"csharp",
 				"php",
-				"dart"
+				"dart",
+				"python",
+				"cpp",
+				"ruby",
+				"go"
 			],
 			"enumDescriptions": [
 				"JavaScript",
@@ -25,7 +29,11 @@
 				"Java",
 				"C#",
 				"PHP",
-				"Dart"
+				"Dart",
+				"Python",
+				"C++",
+				"Ruby",
+				"Go"
 			],
 			"scope": "resource",
 			"description": "Default language to be used for logging."
@@ -84,6 +92,18 @@
 			"scope": "resource",
 			"description": "Use single quotes instead of double quotes in the log message."
 		},
+		"codeLogPlus.literalOpen": {
+			"type": "string",
+			"default": "{",
+			"scope": "resource",
+			"description": "The opening character used to delimit string literals (e.g., double quotes, single quotes, backticks)."
+		},
+		"codeLogPlus.literalClose": {
+			"type": "string",
+			"default": "}",
+			"scope": "resource",
+			"description": "The closing character used to delimit string literals (e.g., double quotes, single quotes, backticks)."
+		},
 		"codeLogPlus.customLogTemplates": {
 			"type": "array",
 			"items": {
@@ -97,7 +117,11 @@
 							"java",
 							"csharp",
 							"php",
-							"dart"
+							"dart",
+							"python",
+							"cpp",
+							"ruby",
+							"go"
 						],
 						"enumDescriptions": [
 							"JavaScript",
@@ -105,7 +129,11 @@
 							"Java",
 							"C#",
 							"PHP",
-							"Dart"
+							"Dart",
+							"Python",
+							"C++",
+							"Ruby",
+							"Go"
 						],
 						"description": "The programming language for which this template applies (e.g., 'javascript', 'python', 'dart')."
 					},

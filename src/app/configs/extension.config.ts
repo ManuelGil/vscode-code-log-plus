@@ -7,6 +7,8 @@ import {
   DEFAULT_CUSTOM_LOG_TEMPLATES,
   DEFAULT_ENABLE_SETTING,
   DEFAULT_LANGUAGE_SETTING,
+  DEFAULT_LITERAL_CLOSE_SETTING,
+  DEFAULT_LITERAL_OPEN_SETTING,
   DEFAULT_LOG_COMMAND_SETTING,
   DEFAULT_LOG_MESSAGE_PREFIX,
   DEFAULT_LOG_MESSAGE_WRAPPED_SETTING,
@@ -158,6 +160,28 @@ export class ExtensionConfig {
   useSingleQuotes: boolean;
 
   /**
+   * The literal open characters for the log message.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * console.log(config.literalOpen);
+   * @default "{"
+   */
+  literalOpen: string;
+
+  /**
+   * The literal close characters for the log message.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * console.log(config.literalClose);
+   * @default "}"
+   */
+  literalClose: string;
+
+  /**
    * Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{filename}}, {{lineNumber}}).
    * @type {LogTemplate[]}
    * @public
@@ -237,6 +261,16 @@ export class ExtensionConfig {
       'useSingleQuotes',
       DEFAULT_USE_SINGLE_QUOTES_SETTING,
     );
+    // The literal open characters for the log message.
+    this.literalOpen = config.get<string>(
+      'literalOpen',
+      DEFAULT_LITERAL_OPEN_SETTING,
+    );
+    // The literal close characters for the log message
+    this.literalClose = config.get<string>(
+      'literalClose',
+      DEFAULT_LITERAL_CLOSE_SETTING,
+    );
     // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}}).
     this.customLogTemplates = config.get<LogTemplate[]>(
       'customLogTemplates',
@@ -310,6 +344,10 @@ export class ExtensionConfig {
       'useSingleQuotes',
       this.useSingleQuotes,
     );
+    // The literal open characters for the log message.
+    this.literalOpen = config.get<string>('literalOpen', this.literalOpen);
+    // The literal close characters for the log message
+    this.literalClose = config.get<string>('literalClose', this.literalClose);
     // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}}).
     this.customLogTemplates = config.get<LogTemplate[]>(
       'customLogTemplates',

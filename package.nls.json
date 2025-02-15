@@ -10,6 +10,8 @@
 	"codeLogPlus.addEmptyLineBeforeLogMessage.description": "Insert an empty line before the log message for improved readability.",
 	"codeLogPlus.addEmptyLineAfterLog.description": "Insert an empty line after the log message for improved readability.",
 	"codeLogPlus.useSingleQuotes.description": "Use single quotes instead of double quotes in the log message.",
+	"codeLogPlus.literalOpen.description": "The opening character used to delimit string literals (e.g., double quotes, single quotes, backticks).",
+	"codeLogPlus.literalClose.description": "The closing character used to delimit string literals (e.g., double quotes, single quotes, backticks).",
 	"codeLogPlus.customLogTemplates.language.description": "The programming language for which this template applies (e.g., 'javascript', 'python', 'dart').",
 	"codeLogPlus.customLogTemplates.template.description": "The log message template. Use variables like {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, etc. Example: \"{{logCommand}}({{{quote}}}{{logMessagePrefix}} {{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}})\"",
 	"codeLogPlus.customLogTemplates.description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{{fileName}}}, {{lineNumber}}).",

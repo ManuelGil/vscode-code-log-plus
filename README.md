@@ -9,7 +9,7 @@
 
 ## Overview
 
-**CodeLog+** is a powerful Visual Studio Code extension designed to streamline debugging by dynamically inserting log statements. It provides customizable log templates tailored for multiple programming languages, enabling structured and efficient debugging workflows.
+**CodeLog+** is a powerful and customizable VS Code extension designed to streamline debugging by quickly inserting formatted log statements into your code. This extension supports multiple programming languages and allows you to configure templates to match your preferred logging style.
 
 ![CodeLog+ Demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/code-log-plus.gif)
 
@@ -21,13 +21,18 @@
   - [Features](#features)
   - [Installation](#installation)
   - [Usage](#usage)
-    - [Inserting a Log Statement](#inserting-a-log-statement)
-    - [Removing Log Statements](#removing-log-statements)
-  - [Configuration](#configuration)
-  - [Keyboard Shortcuts](#keyboard-shortcuts)
-  - [Example Usage](#example-usage)
+    - [Insert a Log Statement](#insert-a-log-statement)
     - [JavaScript Log Output Example](#javascript-log-output-example)
     - [Python Log Output Example](#python-log-output-example)
+  - [Configuration Options](#configuration-options)
+    - [General Settings](#general-settings)
+    - [Supported Languages](#supported-languages)
+    - [Custom Log Templates](#custom-log-templates)
+    - [Template Variables](#template-variables)
+    - [Considerations for Template Creation](#considerations-for-template-creation)
+  - [Keyboard Shortcuts](#keyboard-shortcuts)
+  - [Support](#support)
+  - [Feedback](#feedback)
   - [Follow Me](#follow-me)
   - [VSXpert Template](#vsxpert-template)
   - [Other Extensions](#other-extensions)
@@ -38,57 +43,122 @@
 
 ## Features
 
-- **Multi-Language Support**: Automatically inserts logs using appropriate syntax for JavaScript, Python, Dart, C#, Java, and more.
-- **Customizable Log Templates**: Define personalized log formats, including variables such as filename, line number, and variable name.
-- **Smart Log Formatting**: Control message structure with prefixes, delimiters, and suffixes.
-- **Advanced Context Awareness**: Optionally include enclosing class or function details in log messages.
-- **Configurable Settings**: Supports global and workspace-level configurations for flexibility.
-- **Efficient Log Management**: Insert, comment, uncomment, or remove log statements instantly.
+- **Multi-language support** - Works with JavaScript, TypeScript, Java, C#, PHP, Dart, Python, C++, Ruby, and Go.
+- **Customizable log templates** - Define your own log message format.
+- **Automatic file & line detection** - Inserts file name and line number dynamically.
+- **Quick insert with shortcuts** - Add log statements with minimal effort.
+- **Intelligent variable logging** - Automatically logs variable names and values.
+- **Flexible configuration options** - Tailor the behavior to your needs.
 
 ## Installation
 
-1. Open **VS Code**.
-2. Go to the **Extensions Marketplace** (`Ctrl+Shift+X` or `Cmd+Shift+X` on macOS).
-3. Search for `CodeLog+` and click **Install**.
-4. Reload VS Code if necessary.
+1. Open **VSCode**.
+2. Go to **Extensions** (`Ctrl+Shift+X` or `Cmd+Shift+X` on macOS).
+3. Search for `CodeLog+`.
+4. Click **Install**.
+5. Start using it right away!
 
 ## Usage
 
-### Inserting a Log Statement
+### Insert a Log Statement
 
-1. Place your cursor on a variable or statement.
-2. Use the shortcut (`Ctrl+Alt+L` / `Cmd+Alt+L` on macOS) or execute `CodeLog+: Insert Log` via the command palette (`Ctrl+Shift+P`).
-3. The log statement is inserted based on your configured template.
+1. Place your cursor on a variable or function.
+2. Use the shortcut:
+   - **Windows/Linux**: `Ctrl+Alt+L`
+   - **Mac**: `Cmd+Option+L`
+3. A formatted log statement will be inserted automatically.
 
-### Removing Log Statements
+### JavaScript Log Output Example
 
-- Press (`Ctrl+Alt+Shift+L` / `Cmd+Alt+Shift+L`) to remove all log statements in the file.
-- Use `CodeLog+: Remove All Logs` in the command palette.
+```js
+console.log("🔍 ~ myFile.js:25 ~ userName:", userName)
+```
 
-## Configuration
+### Python Log Output Example
 
-Modify `settings.json` to customize CodeLog+:
+```python
+print(f"🔍 ~ myFile.py:25 ~ userName: {userName}")
+```
+
+## Configuration Options
+
+CodeLog+ provides various configuration options to customize logging behavior in VS Code. You can modify these settings in the VS Code `settings.json` file.
+
+### General Settings
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `codeLogPlus.enable` | boolean | `true` | Enables or disables CodeLog+ features. |
+| `codeLogPlus.defaultLanguage` | string | `javascript` | Default language for log statements. |
+| `codeLogPlus.logCommand` | string | `console.log` | The command used for logging. |
+| `codeLogPlus.isLogMessageWrapped` | boolean | `false` | Determines whether log messages should be wrapped. |
+| `codeLogPlus.logMessagePrefix` | string | `🔍` | Prefix for log messages. |
+| `codeLogPlus.messageLogDelimiter` | string | `~` | Delimiter for log messages. |
+| `codeLogPlus.messageLogSuffix` | string | `:` | Suffix for log messages. |
+| `codeLogPlus.isSemicolonRequired` | boolean | `false` | Whether a semicolon should be added at the end of log statements. |
+| `codeLogPlus.addEmptyLineBeforeLogMessage` | boolean | `false` | Adds an empty line before log statements. |
+| `codeLogPlus.addEmptyLineAfterLog` | boolean | `false` | Adds an empty line after log statements. |
+| `codeLogPlus.useSingleQuotes` | boolean | `false` | Uses single quotes for strings in log messages. |
+| `codeLogPlus.literalOpen` | string | `{` | Character(s) used to open template literals. |
+| `codeLogPlus.literalClose` | string | `}` | Character(s) used to close template literals. |
+
+### Supported Languages
+
+CodeLog+ supports multiple programming languages for log generation:
+
+- **JavaScript (`javascript`)**
+- **TypeScript (`typescript`)**
+- **Java (`java`)**
+- **C# (`csharp`)**
+- **PHP (`php`)**
+- **Dart (`dart`)**
+- **Python (`python`)**
+- **C++ (`cpp`)**
+- **Ruby (`ruby`)**
+- **Go (`go`)**
+
+### Custom Log Templates
+
+Users can define custom log templates using Mustache syntax. Example:
 
 ```json
-{
-  "codeLogPlus.enable": true,
-  "codeLogPlus.defaultLanguage": "javascript",
-  "codeLogPlus.logCommand": "console.log",
-  "codeLogPlus.logMessagePrefix": "🔍",
-  "codeLogPlus.messageLogDelimiter": "~",
-  "codeLogPlus.isSemicolonRequired": false,
-  "codeLogPlus.customLogTemplates": [
-    {
-      "language": "javascript",
-      "template": "{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{{filename}}}:{{lineNumber}} → {{variableName}}{{{quote}}});"
-    },
-    {
-      "language": "python",
-      "template": "{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{{filename}}}:{{lineNumber}} → {{variableName}}{{{quote}}})"
-    }
-  ]
-}
+"codeLogPlus.customLogTemplates": [
+  {
+    "language": "javascript",
+    "template": "{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}});"
+  },
+  {
+    "language": "python",
+    "template": "{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}})"
+  }
+]
 ```
+
+### Template Variables
+
+When defining custom templates, you can use the following variables:
+
+| Variable | Description |
+|----------|-------------|
+| `indent` | The indentation level of the log statement. |
+| `logCommand` | The logging command (e.g., `console.log`, `print`). |
+| `quote` | Single or double quotes based on settings. **Escape this value to prevent HTML entity conversion.** |
+| `logMessagePrefix` | The prefix set for log messages. |
+| `messageLogDelimiter` | The delimiter between log elements. |
+| `fileName` | The name of the file where the log is inserted. **Escape this value to prevent HTML entity conversion.** |
+| `lineNumber` | The line number where the log is inserted. |
+| `variableName` | The name of the variable being logged. |
+| `messageLogSuffix` | The suffix added to log messages. |
+| `literalOpen` | The opening character(s) for template literals. |
+| `literalClose` | The closing character(s) for template literals. |
+
+### Considerations for Template Creation
+
+- **Escape special characters**: Variables like `quote` and `fileName` may be converted into HTML entities. Use appropriate escaping mechanisms to avoid issues.
+- **Ensure syntax correctness**: Different languages require different concatenation methods (`+` for Java, `.` for PHP, etc.).
+- **Use delimiters wisely**: The `messageLogDelimiter` setting helps maintain readable logs across different formats.
+
+By customizing these options, you can tailor CodeLog+ to fit your workflow seamlessly.
 
 ## Keyboard Shortcuts
 
@@ -101,19 +171,15 @@ Modify `settings.json` to customize CodeLog+:
 | Comment Logs     | `Ctrl+Alt+,` | `Cmd+Alt+,` |
 | Uncomment Logs   | `Ctrl+Alt+Shift+,` | `Cmd+Alt+Shift+,` |
 
-## Example Usage
+You can also customize these shortcuts in the VSCode settings.
 
-### JavaScript Log Output Example
+## Support
 
-```js
-console.log("🔍 myFile.js:25 → userName");
-```
+If you encounter any issues or have suggestions for improvements, please [open an issue](https://github.com/ManuelGil/vscode-code-log-plus/issues) on GitHub.
 
-### Python Log Output Example
+## Feedback
 
-```python
-print("🔍 myFile.py:25 → userName")
-```
+If you enjoy using CodeLog+, please consider leaving a review on the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-code-log-plus).
 
 ## Follow Me
 

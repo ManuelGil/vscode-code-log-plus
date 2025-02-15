@@ -181,6 +181,30 @@ export const DEFAULT_ADD_EMPTY_LINE_AFTER_LOG_SETTING: boolean = false;
 export const DEFAULT_USE_SINGLE_QUOTES_SETTING: boolean = false;
 
 /**
+ * DEFAULT_LITERAL_OPEN_SETTING: The default value for the literal open setting.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_LITERAL_OPEN_SETTING);
+ *
+ * @returns {string} - The default value for the literal open setting
+ */
+export const DEFAULT_LITERAL_OPEN_SETTING: string = '{';
+
+/**
+ * DEFAULT_LITERAL_CLOSE_SETTING: The default value for the literal close setting.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_LITERAL_CLOSE_SETTING);
+ *
+ * @returns {string} - The default value for the literal close setting
+ */
+export const DEFAULT_LITERAL_CLOSE_SETTING: string = '}';
+
+/**
  * DEFAULT_CUSTOM_LOG_TEMPLATES: The default value for the custom log templates setting.
  * @type {string[]}
  * @public
