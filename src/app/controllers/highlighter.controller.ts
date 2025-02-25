@@ -37,7 +37,8 @@ export class CodeHighlighterController {
    * Constructor for the CodeHighlighterController class
    *
    * @constructor
-   * @param {string} backgroundColor - The background color
+   * @param {string} color - The color
+   * @param {string} style - The style
    * @public
    * @memberof CodeHighlighterController
    */
