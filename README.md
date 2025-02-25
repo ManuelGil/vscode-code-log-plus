@@ -9,7 +9,7 @@
 
 ## Overview
 
-**CodeLog+** is a powerful and customizable VS Code extension designed to streamline debugging by quickly inserting formatted log statements into your code. This extension supports multiple programming languages and allows you to configure templates to match your preferred logging style.
+**CodeLog+** is a powerful and customizable VSCode extension designed to streamline debugging by quickly inserting formatted log statements into your code. This extension supports multiple programming languages and allows you to configure templates to match your preferred logging style.
 
 ![CodeLog+ Demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/code-log-plus.gif)
 
@@ -82,7 +82,7 @@ print(f"🔍 ~ myFile.py:25 ~ userName: {userName}")
 
 ## Configuration Options
 
-CodeLog+ provides various configuration options to customize logging behavior in VS Code. You can modify these settings in the VS Code `settings.json` file.
+CodeLog+ provides various configuration options to customize logging behavior in VSCode. You can modify these settings in the VSCode `settings.json` file.
 
 ### General Settings
 
@@ -101,6 +101,9 @@ CodeLog+ provides various configuration options to customize logging behavior in
 | `codeLogPlus.useSingleQuotes` | boolean | `false` | Uses single quotes for strings in log messages. |
 | `codeLogPlus.literalOpen` | string | `{` | Character(s) used to open template literals. |
 | `codeLogPlus.literalClose` | string | `}` | Character(s) used to close template literals. |
+| `codeLogPlus.highlightColor` | string | `"#FFD700"` | Color used for highlighting log statements. |
+| `codeLogPlus.highlightStyle` | string | `"wavy"` | Style used for highlighting log statements. |
+| `codeLogPlus.customLogTemplates` | array | `[]` | Custom log templates for different languages. |
 
 ### Supported Languages
 

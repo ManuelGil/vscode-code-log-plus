@@ -41,9 +41,9 @@ export class CodeHighlighterController {
    * @public
    * @memberof CodeHighlighterController
    */
-  constructor() {
+  constructor(color: string, style: string) {
     this.decorationType = window.createTextEditorDecorationType({
-      textDecoration: 'underline wavy green',
+      textDecoration: `underline 1.3px ${color} ${style}`,
     });
   }
 

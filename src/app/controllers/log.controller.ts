@@ -56,8 +56,13 @@ export class LogController {
    * @memberof LogController
    */
   constructor(readonly config: ExtensionConfig) {
+    const { highlightColor, highlightStyle } = config;
+
     this.logService = new LogService(config);
-    this.highlighter = new CodeHighlighterController();
+    this.highlighter = new CodeHighlighterController(
+      highlightColor,
+      highlightStyle,
+    );
   }
 
   // -----------------------------------------------------------------

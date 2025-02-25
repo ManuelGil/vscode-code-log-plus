@@ -205,6 +205,35 @@ export const DEFAULT_LITERAL_OPEN_SETTING: string = '{';
 export const DEFAULT_LITERAL_CLOSE_SETTING: string = '}';
 
 /**
+ * DEFAULT_HIGHLIGHT_COLOR_SETTING: The default value for the highlight color setting.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_HIGHLIGHT_COLOR_SETTING);
+ *
+ * @returns {string} - The default value for the highlight color setting
+ */
+export const DEFAULT_HIGHLIGHT_COLOR_SETTING: string = '#FFD700';
+
+/**
+ * DEFAULT_HIGHLIGHT_STYLE_SETTING: The default value for the highlight style setting.
+ * @type {'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_HIGHLIGHT_STYLE_SETTING);
+ *
+ * @returns {string} - The default value for the highlight style setting
+ */
+export const DEFAULT_HIGHLIGHT_STYLE_SETTING:
+  | 'solid'
+  | 'double'
+  | 'dotted'
+  | 'dashed'
+  | 'wavy' = 'wavy';
+
+/**
  * DEFAULT_CUSTOM_LOG_TEMPLATES: The default value for the custom log templates setting.
  * @type {string[]}
  * @public

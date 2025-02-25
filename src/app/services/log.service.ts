@@ -1,6 +1,5 @@
 import * as mustache from 'mustache';
 import { ExtensionConfig } from '../configs';
-import { languages } from 'vscode';
 
 /**
  * The LogService class.
@@ -273,7 +272,7 @@ export class LogService {
       const end = code.indexOf(')', start) + 1;
       const line = code.slice(0, start).split('\n').length;
       const preview = code
-        .slice(start, start + 20)
+        .slice(start, start + 25)
         .concat('...')
         .trim();
       const fullText = code.slice(start, end).trim();

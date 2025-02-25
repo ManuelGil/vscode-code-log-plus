@@ -104,6 +104,26 @@
 			"scope": "resource",
 			"description": "The closing character used to delimit string literals (e.g., double quotes, single quotes, backticks)."
 		},
+		"codeLogPlus.highlightColor": {
+			"type": "string",
+			"default": "#FFD700",
+			"scope": "resource",
+			"description": "The color used to highlight the log statements."
+		},
+		"codeLogPlus.highlightStyle": {
+			"type": "string",
+			"default": "border",
+			"enum": ["solid", "double", "dotted", "dashed", "wavy"],
+			"enumDescriptions": [
+				"Solid Line",
+				"Double Line",
+				"Dotted Line",
+				"Dashed Line",
+				"Wavy Line"
+			],
+			"scope": "resource",
+			"description": "The style used to highlight the log statements."
+		},
 		"codeLogPlus.customLogTemplates": {
 			"type": "array",
 			"items": {

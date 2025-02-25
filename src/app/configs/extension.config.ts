@@ -6,6 +6,8 @@ import {
   DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING,
   DEFAULT_CUSTOM_LOG_TEMPLATES,
   DEFAULT_ENABLE_SETTING,
+  DEFAULT_HIGHLIGHT_COLOR_SETTING,
+  DEFAULT_HIGHLIGHT_STYLE_SETTING,
   DEFAULT_LANGUAGE_SETTING,
   DEFAULT_LITERAL_CLOSE_SETTING,
   DEFAULT_LITERAL_OPEN_SETTING,
@@ -182,6 +184,28 @@ export class ExtensionConfig {
   literalClose: string;
 
   /**
+   * Highlight color for the log statements.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * console.log(config.highlightColor);
+   * @default "#FFD700"
+   */
+  highlightColor: string;
+
+  /**
+   * Highlight style for the log statements.
+   * @type {'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * console.log(config.highlightStyle);
+   * @default "wavy"
+   */
+  highlightStyle: 'solid' | 'double' | 'dotted' | 'dashed' | 'wavy';
+
+  /**
    * Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{filename}}, {{lineNumber}}).
    * @type {LogTemplate[]}
    * @public
@@ -271,6 +295,15 @@ export class ExtensionConfig {
       'literalClose',
       DEFAULT_LITERAL_CLOSE_SETTING,
     );
+    // Highlight color for the log statements.
+    this.highlightColor = config.get<string>(
+      'highlightColor',
+      DEFAULT_HIGHLIGHT_COLOR_SETTING,
+    );
+    // Highlight style for the log statements.
+    this.highlightStyle = config.get<
+      'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'
+    >('highlightStyle', DEFAULT_HIGHLIGHT_STYLE_SETTING);
     // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}}).
     this.customLogTemplates = config.get<LogTemplate[]>(
       'customLogTemplates',
@@ -348,6 +381,15 @@ export class ExtensionConfig {
     this.literalOpen = config.get<string>('literalOpen', this.literalOpen);
     // The literal close characters for the log message
     this.literalClose = config.get<string>('literalClose', this.literalClose);
+    // Highlight color for the log statements.
+    this.highlightColor = config.get<string>(
+      'highlightColor',
+      this.highlightColor,
+    );
+    // Highlight style for the log statements.
+    this.highlightStyle = config.get<
+      'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'
+    >('highlightStyle', this.highlightStyle);
     // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}}).
     this.customLogTemplates = config.get<LogTemplate[]>(
       'customLogTemplates',
