@@ -60,6 +60,25 @@ export async function activate(context: vscode.ExtensionContext) {
       resource?.uri,
     );
 
+    if (
+      event.affectsConfiguration(
+        `${EXTENSION_ID}.highlightColor`,
+        resource?.uri,
+      ) ||
+      event.affectsConfiguration(
+        `${EXTENSION_ID}.highlightStyle`,
+        resource?.uri,
+      )
+    ) {
+      config.update(workspaceConfig);
+
+      // Update the highlighter instance
+      logController.highlighter.update(
+        config.highlightColor,
+        config.highlightStyle,
+      );
+    }
+
     if (event.affectsConfiguration(EXTENSION_ID, resource?.uri)) {
       config.update(workspaceConfig);
     }

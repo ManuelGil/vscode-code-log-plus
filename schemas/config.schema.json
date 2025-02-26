@@ -112,7 +112,7 @@
 		},
 		"codeLogPlus.highlightStyle": {
 			"type": "string",
-			"default": "border",
+			"default": "wavy",
 			"enum": ["solid", "double", "dotted", "dashed", "wavy"],
 			"enumDescriptions": [
 				"Solid Line",

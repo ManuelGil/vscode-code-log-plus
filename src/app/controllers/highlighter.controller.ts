@@ -16,6 +16,19 @@ export class CodeHighlighterController {
   // Properties
   // -----------------------------------------------------------------
 
+  // Public properties
+
+  /**
+   * The static instance of the CodeHighlighterController class.
+   *
+   * @static
+   * @type {CodeHighlighterController}
+   * @memberof CodeHighlighterController
+   * @example
+   * CodeHighlighterController.instance;
+   */
+  static instance: CodeHighlighterController;
+
   // Private properties
 
   /**
@@ -42,9 +55,12 @@ export class CodeHighlighterController {
    * @public
    * @memberof CodeHighlighterController
    */
-  constructor(color: string, style: string) {
+  private constructor(
+    public color: string,
+    public style: string,
+  ) {
     this.decorationType = window.createTextEditorDecorationType({
-      textDecoration: `underline 1.3px ${color} ${style}`,
+      textDecoration: `underline ${color} ${style}`,
     });
   }
 
@@ -53,6 +69,47 @@ export class CodeHighlighterController {
   // -----------------------------------------------------------------
 
   // Public methods
+
+  /**
+   * The getInstance method.
+   * Get the instance of the CodeHighlighterController class.
+   *
+   * @function getInstance
+   * @param {string} color - The color
+   * @param {string} style - The style
+   * @public
+   * @memberof CodeHighlighterController
+   * @example
+   * CodeHighlighterController.getInstance(color, style);
+   *
+   * @returns {CodeHighlighterController} - The code highlighter controller instance
+   */
+  static getInstance(color: string, style: string) {
+    if (!CodeHighlighterController.instance) {
+      CodeHighlighterController.instance = new CodeHighlighterController(
+        color,
+        style,
+      );
+    }
+
+    return CodeHighlighterController.instance;
+  }
+
+  /**
+   * The update method.
+   * Update the decoration type object.
+   *
+   * @function update
+   * @param {string} color - The color
+   * @param {string} style - The style
+   * @public
+   * @memberof CodeHighlighterController
+   */
+  update(color: string, style: string) {
+    this.decorationType = window.createTextEditorDecorationType({
+      textDecoration: `underline ${color} ${style}`,
+    });
+  }
 
   /**
    * The highlight method.

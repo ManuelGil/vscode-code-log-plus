@@ -20,17 +20,7 @@ export class LogController {
   // Properties
   // -----------------------------------------------------------------
 
-  // Private properties
-  /**
-   * The log service.
-   *
-   * @private
-   * @type {LogService}
-   * @memberof LogController
-   * @example
-   * this.logService;
-   */
-  private logService: LogService;
+  // Public properties
 
   /**
    * The highlighter controller.
@@ -41,7 +31,20 @@ export class LogController {
    * @example
    * this.highlighter;
    */
-  private highlighter: CodeHighlighterController;
+  public highlighter: CodeHighlighterController;
+
+  // Private properties
+
+  /**
+   * The log service.
+   *
+   * @private
+   * @type {LogService}
+   * @memberof LogController
+   * @example
+   * this.logService;
+   */
+  private logService: LogService;
 
   // -----------------------------------------------------------------
   // Constructor
@@ -59,7 +62,7 @@ export class LogController {
     const { highlightColor, highlightStyle } = config;
 
     this.logService = new LogService(config);
-    this.highlighter = new CodeHighlighterController(
+    this.highlighter = CodeHighlighterController.getInstance(
       highlightColor,
       highlightStyle,
     );

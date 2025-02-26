@@ -224,7 +224,7 @@
 				},
 				"codeLogPlus.highlightStyle": {
 					"type": "string",
-					"default": "border",
+					"default": "wavy",
 					"enum": [
 						"solid",
 						"double",
