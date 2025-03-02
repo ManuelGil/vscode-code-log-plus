@@ -159,14 +159,14 @@
 					},
 					"template": {
 						"type": "string",
-						"description": "The log message template. Use variables like {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, etc. Example: \"{{logCommand}}({{{quote}}}{{logMessagePrefix}} {{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}})\""
+						"description": "The log message template. Use variables like {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, etc. Example: \"{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}} {{{fileName}}}:{{{lineNumber}}} → {{{variableName}}}{{{quote}}})\""
 					}
 				},
 				"required": ["language", "template"]
 			},
 			"default": [],
 			"scope": "resource",
-			"description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}})."
+			"description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}})."
 		}
 	}
 }

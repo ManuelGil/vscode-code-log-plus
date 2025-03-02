@@ -1,4 +1,13 @@
-import { Position, Range, l10n, window, workspace } from 'vscode';
+import {
+  DocumentSymbol,
+  Position,
+  Range,
+  SymbolKind,
+  commands,
+  l10n,
+  window,
+  workspace,
+} from 'vscode';
 
 import { ExtensionConfig } from '../configs';
 import { LogService } from '../services';
@@ -103,11 +112,34 @@ export class LogController {
       document.lineAt(lineNumber).firstNonWhitespaceCharacterIndex,
     );
 
+    const symbols = (await commands.executeCommand(
+      'vscode.executeDocumentSymbolProvider',
+      document.uri,
+    )) as DocumentSymbol[];
+
+    let functionName = '';
+
+    if (symbols && symbols.length > 0) {
+      const funcSymbol = this.findFunctionSymbol(symbols, selection.start);
+      if (funcSymbol) {
+        const name = funcSymbol.name.trim();
+        if (name && name !== '') {
+          functionName = name;
+        }
+      }
+    }
+
+    const regex = /\b(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\(.*?\)\s*=>)/;
+    const match = regex.exec(document.lineAt(lineNumber).text);
+
+    functionName = match ? match[1] : functionName;
+
     const variableName = document.getText(selection).trim() || 'variable';
 
     const logSnippet = this.logService.generateLogSnippet(
       indent,
       workspace.asRelativePath(fileName),
+      functionName,
       variableName,
       lineNumber + 1,
     );
@@ -274,6 +306,17 @@ export class LogController {
     window.showInformationMessage(message);
   }
 
+  /**
+   * The uncommentLogs method.
+   * Uncomment the log statements in the active editor.
+   * @function uncommentLogs
+   * @public
+   * @async
+   * @memberof LogController
+   * @example
+   * controller.uncommentLogs();
+   * @returns {Promise<void>} - The promise with no return value
+   */
   async uncommentLogs() {
     const editor = window.activeTextEditor;
 
@@ -307,5 +350,42 @@ export class LogController {
 
     const message = l10n.t('Selected logs have been uncommented');
     window.showInformationMessage(message);
+  }
+
+  // Private methods
+
+  /**
+   * The findFunctionSymbol method.
+   * Find the function symbol that contains the specified line number.
+   * @function findFunctionSymbol
+   * @private
+   * @param {DocumentSymbol[]} symbols - The list of document symbols
+   * @param {number} lineNumber - The line number
+   * @memberof LogController
+   * @example
+   * this.findFunctionSymbol(symbols, lineNumber);
+   * @returns {DocumentSymbol | undefined} - The function symbol
+   */
+  private findFunctionSymbol(
+    symbols: DocumentSymbol[],
+    position: Position,
+  ): DocumentSymbol | undefined {
+    for (const symbol of symbols) {
+      if (symbol.range.contains(position)) {
+        if (
+          symbol.kind === SymbolKind.Function ||
+          symbol.kind === SymbolKind.Method
+        ) {
+          return symbol;
+        }
+        if (symbol.children && symbol.children.length > 0) {
+          const result = this.findFunctionSymbol(symbol.children, position);
+          if (result) {
+            return result;
+          }
+        }
+      }
+    }
+    return undefined;
   }
 }

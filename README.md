@@ -128,11 +128,11 @@ Users can define custom log templates using Mustache syntax. Example:
 "codeLogPlus.customLogTemplates": [
   {
     "language": "javascript",
-    "template": "{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}});"
+    "template": "{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{fileName}}}:{{{lineNumber}}} → {{{variableName}}}{{{quote}}});\n"
   },
   {
     "language": "python",
-    "template": "{{logCommand}}({{{quote}}}{{logMessagePrefix}}{{{fileName}}}:{{lineNumber}} → {{variableName}}{{{quote}}})"
+    "template": "{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{fileName}}}:{{{lineNumber}}} → {{{variableName}}}{{{quote}}})\n"
   }
 ]
 ```
@@ -150,6 +150,7 @@ When defining custom templates, you can use the following variables:
 | `messageLogDelimiter` | The delimiter between log elements. |
 | `fileName` | The name of the file where the log is inserted. **Escape this value to prevent HTML entity conversion.** |
 | `lineNumber` | The line number where the log is inserted. |
+| `functionName` | The name of the function where the log is inserted. |
 | `variableName` | The name of the variable being logged. |
 | `messageLogSuffix` | The suffix added to log messages. |
 | `literalOpen` | The opening character(s) for template literals. |

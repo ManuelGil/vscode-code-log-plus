@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-03-02
+
+### Added
+
+- Add the `functionName` variable to the log statement templates
+
+### Changed
+
+- Refactor log service to improve template handling and use of settings for log statements
+
 ## [1.2.1] - 2025-02-26
 
 ### Fixed
@@ -23,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add literal open and close settings for log messages
+- Add literal open and close settings for log statements
 
 ## [1.0.1] - 2025-02-14
 
@@ -37,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.1.0...v1.2.0
 [1.1.0]: https.//github.com/ManuelGil/vscode-code-log-plus/compare/v1.0.1...v1.1.0

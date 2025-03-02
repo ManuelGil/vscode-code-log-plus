@@ -206,7 +206,7 @@ export class ExtensionConfig {
   highlightStyle: 'solid' | 'double' | 'dotted' | 'dashed' | 'wavy';
 
   /**
-   * Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{filename}}, {{lineNumber}}).
+   * Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{filename}}}, {{{lineNumber}}}).
    * @type {LogTemplate[]}
    * @public
    * @memberof ExtensionConfig
@@ -304,7 +304,7 @@ export class ExtensionConfig {
     this.highlightStyle = config.get<
       'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'
     >('highlightStyle', DEFAULT_HIGHLIGHT_STYLE_SETTING);
-    // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}}).
+    // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}}).
     this.customLogTemplates = config.get<LogTemplate[]>(
       'customLogTemplates',
       DEFAULT_CUSTOM_LOG_TEMPLATES,
@@ -390,7 +390,7 @@ export class ExtensionConfig {
     this.highlightStyle = config.get<
       'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'
     >('highlightStyle', this.highlightStyle);
-    // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{logCommand}}, {{logMessagePrefix}}, {{variableName}}, {{fileName}}, {{lineNumber}}).
+    // Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}}).
     this.customLogTemplates = config.get<LogTemplate[]>(
       'customLogTemplates',
       this.customLogTemplates,
