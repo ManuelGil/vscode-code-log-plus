@@ -3,6 +3,7 @@ import {
   Position,
   Range,
   SymbolKind,
+  TextDocument,
   commands,
   l10n,
   window,
@@ -11,7 +12,6 @@ import {
 
 import { ExtensionConfig } from '../configs';
 import { LogService } from '../services';
-import { CodeHighlighterController } from './highlighter.controller';
 
 /**
  * The LogController class.
@@ -20,41 +20,11 @@ import { CodeHighlighterController } from './highlighter.controller';
  * @classdesc The class that represents the list files controller.
  * @export
  * @public
- * @property {ExtensionConfig} config - The configuration object
+ * @property {LogService} service - The log service object
  * @example
  * const controller = new LogController(config);
  */
 export class LogController {
-  // -----------------------------------------------------------------
-  // Properties
-  // -----------------------------------------------------------------
-
-  // Public properties
-
-  /**
-   * The highlighter controller.
-   *
-   * @private
-   * @type {CodeHighlighterController}
-   * @memberof LogController
-   * @example
-   * this.highlighter;
-   */
-  public highlighter: CodeHighlighterController;
-
-  // Private properties
-
-  /**
-   * The log service.
-   *
-   * @private
-   * @type {LogService}
-   * @memberof LogController
-   * @example
-   * this.logService;
-   */
-  private logService: LogService;
-
   // -----------------------------------------------------------------
   // Constructor
   // -----------------------------------------------------------------
@@ -63,19 +33,11 @@ export class LogController {
    * Constructor for the LogController class
    *
    * @constructor
-   * @param {ExtensionConfig} config - The configuration object
+   * @param {LogService} service - The log service object
    * @public
    * @memberof LogController
    */
-  constructor(readonly config: ExtensionConfig) {
-    const { highlightColor, highlightStyle } = config;
-
-    this.logService = new LogService(config);
-    this.highlighter = CodeHighlighterController.getInstance(
-      highlightColor,
-      highlightStyle,
-    );
-  }
+  constructor(readonly service: LogService) {}
 
   // -----------------------------------------------------------------
   // Methods
@@ -99,8 +61,7 @@ export class LogController {
     const editor = window.activeTextEditor;
 
     if (!editor) {
-      const message = l10n.t('No active editor available!');
-      window.showErrorMessage(message);
+      window.showErrorMessage(l10n.t('No active editor available!'));
       return;
     }
 
@@ -112,41 +73,100 @@ export class LogController {
       document.lineAt(lineNumber).firstNonWhitespaceCharacterIndex,
     );
 
-    const symbols = (await commands.executeCommand(
-      'vscode.executeDocumentSymbolProvider',
-      document.uri,
-    )) as DocumentSymbol[];
-
-    let functionName = '';
-
-    if (symbols && symbols.length > 0) {
-      const funcSymbol = this.findFunctionSymbol(symbols, selection.start);
-      if (funcSymbol) {
-        const name = funcSymbol.name.trim();
-        if (name && name !== '') {
-          functionName = name;
-        }
-      }
-    }
-
-    const regex = /\b(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\(.*?\)\s*=>)/;
-    const match = regex.exec(document.lineAt(lineNumber).text);
-
-    functionName = match ? match[1] : functionName;
-
+    const functionName = await this.extractFunctionName(
+      document,
+      selection.start,
+    );
     const variableName = document.getText(selection).trim() || 'variable';
 
-    const logSnippet = this.logService.generateLogSnippet(
+    const { languageId } = editor.document;
+
+    const logSnippet = this.service.generateLogSnippet(
       indent,
       workspace.asRelativePath(fileName),
       functionName,
       variableName,
       lineNumber + 1,
+      languageId,
     );
 
     const insertPosition = new Position(lineNumber + 1, 0);
     await editor.edit((editBuilder) => {
       return editBuilder.insert(insertPosition, logSnippet);
+    });
+  }
+
+  /**
+   * The editLogs method.
+   * Edit the log statements in the active editor.
+   * @function editLogs
+   * @public
+   * @async
+   * @memberof LogController
+   * @example
+   * controller.editLogs();
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async editLogs() {
+    const editor = window.activeTextEditor;
+
+    if (!editor) {
+      window.showErrorMessage(l10n.t('No active editor available!'));
+      return;
+    }
+
+    const documentText = editor.document.getText();
+
+    const { languageId } = editor.document;
+
+    const logs = this.service.findLogEntries(documentText, languageId);
+    if (logs.length === 0) {
+      window.showInformationMessage(
+        l10n.t('No log statements found for editing'),
+      );
+      return;
+    }
+
+    const picks = logs.map((log) => ({
+      label: `Line ${log.line}: ${log.preview}`,
+      description: log.fullText,
+      log,
+    }));
+
+    const placeholder = l10n.t('Select log statements to edit');
+    const selected = await window.showQuickPick(picks, {
+      canPickMany: true,
+      placeHolder: placeholder,
+    });
+    if (!selected || selected.length === 0) {
+      window.showInformationMessage(
+        l10n.t('No log statements selected for editing'),
+      );
+      return;
+    }
+
+    const newLogCommand = await window.showInputBox({
+      prompt: l10n.t('Enter new log command'),
+      placeHolder: 'e.g. console.error',
+    });
+    if (!newLogCommand) {
+      window.showInformationMessage(l10n.t('No new log command provided'));
+      return;
+    }
+
+    await editor.edit((editBuilder) => {
+      const sorted = selected.sort((a, b) => b.log.start - a.log.start);
+      sorted.forEach((item) => {
+        const startPos = editor.document.positionAt(item.log.start);
+        const endPos = editor.document.positionAt(item.log.end);
+        const range = new Range(startPos, endPos);
+        const logText = editor.document.getText(range);
+        const updatedLogText = logText.replace(
+          /^(\s*)([a-zA-Z0-9_.]+)(\s*\()/gm,
+          `$1${newLogCommand}$3`,
+        );
+        editBuilder.replace(range, updatedLogText);
+      });
     });
   }
 
@@ -165,24 +185,24 @@ export class LogController {
     const editor = window.activeTextEditor;
 
     if (!editor) {
-      const message = l10n.t('No active editor available!');
-      window.showErrorMessage(message);
+      window.showErrorMessage(l10n.t('No active editor available!'));
       return;
     }
 
     const documentText = editor.document.getText();
-    const logs = this.logService.findLogEntries(documentText);
 
+    const { languageId } = editor.document;
+
+    const logs = this.service.findLogEntries(documentText, languageId);
     if (logs.length === 0) {
-      const message = l10n.t('No logs found for removal');
-      window.showInformationMessage(message);
+      window.showInformationMessage(l10n.t('No logs found for removal'));
       return;
     }
 
     const picks = logs.map((log) => ({
       label: `Line ${log.line}: ${log.preview}`,
       description: log.fullText,
-      line: log.line,
+      log,
     }));
 
     const placeHolder = l10n.t('Select logs to remove');
@@ -190,79 +210,29 @@ export class LogController {
       canPickMany: true,
       placeHolder,
     });
-
     if (!selected || selected.length === 0) {
-      const message = l10n.t('No logs selected for removal');
-      window.showInformationMessage(message);
+      window.showInformationMessage(l10n.t('No logs selected for removal'));
       return;
     }
 
     await editor.edit((editBuilder) => {
-      const sorted = selected.sort((a, b) => b.line - a.line);
-      sorted.forEach((log) => {
-        const start = editor.document.lineAt(log.line - 1).range.start;
-        const end = editor.document.lineAt(log.line - 1).range.end;
-        const range = new Range(start, end);
+      const sorted = selected.sort((a, b) => b.log.line - a.log.line);
+      sorted.forEach((item) => {
+        const startPos = editor.document.positionAt(item.log.start);
+        let endPos = editor.document.positionAt(item.log.end);
+
+        const nextCharRange = new Range(endPos, endPos.translate(0, 1));
+        const nextChar = editor.document.getText(nextCharRange);
+        if (nextChar === ';') {
+          endPos = endPos.translate(0, 1);
+        }
+
+        const range = new Range(startPos, endPos);
         editBuilder.delete(range);
       });
     });
 
-    const message = l10n.t('Selected logs have been removed');
-    window.showInformationMessage(message);
-  }
-
-  /**
-   * The highlightLogs method.
-   * Highlight the log statements in the active editor.
-   * @function highlightLogs
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.highlightLogs();
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async highlightLogs() {
-    const editor = window.activeTextEditor;
-
-    if (!editor) {
-      const message = l10n.t('No active editor available!');
-      window.showErrorMessage(message);
-      return;
-    }
-
-    const document = editor.document;
-    const code = document.getText();
-    const logRanges = this.logService.findLogEntries(code);
-
-    this.highlighter.highlight(
-      editor,
-      logRanges,
-      l10n.t(
-        'You can remove the log statements by using the command: "Remove Logs"',
-      ),
-    );
-  }
-
-  /**
-   * The clearHighlights method.
-   * Remove the highlights from the active editor.
-   * @function removeHighlights
-   * @public
-   * @memberof LogController
-   * @example
-   * controller.clearHighlights();
-   */
-  clearHighlights() {
-    const editor = window.activeTextEditor;
-
-    if (!editor) {
-      const message = l10n.t('No active editor available!');
-      window.showErrorMessage(message);
-      return;
-    }
-
-    this.highlighter.clear(editor);
+    window.showInformationMessage(l10n.t('Selected logs have been removed'));
   }
 
   /**
@@ -287,23 +257,24 @@ export class LogController {
 
     const document = editor.document;
     const code = document.getText();
-    const logRanges = this.logService.findLogEntries(code);
 
+    const { languageId } = editor.document;
+
+    const logRanges = this.service.findLogEntries(code, languageId);
     if (logRanges.length === 0) {
-      const message = l10n.t('No logs found in the active editor');
-      window.showInformationMessage(message);
+      window.showInformationMessage(
+        l10n.t('No logs found in the active editor'),
+      );
       return;
     }
+    const commentToken = this.getCommentToken(document);
 
     await editor.edit((editBuilder) => {
       logRanges.forEach((log) => {
-        const start = document.positionAt(log.start);
-        editBuilder.insert(start, '// ');
+        const startPos = document.positionAt(log.start);
+        editBuilder.insert(startPos, commentToken);
       });
     });
-
-    const message = l10n.t('Selected logs have been commented');
-    window.showInformationMessage(message);
   }
 
   /**
@@ -321,18 +292,21 @@ export class LogController {
     const editor = window.activeTextEditor;
 
     if (!editor) {
-      const message = l10n.t('No active editor available!');
-      window.showErrorMessage(message);
+      window.showErrorMessage(l10n.t('No active editor available!'));
       return;
     }
 
     const document = editor.document;
     const code = document.getText();
-    const logRanges = this.logService.findLogEntries(code);
+
+    const { languageId } = editor.document;
+
+    const logRanges = this.service.findLogEntries(code, languageId);
 
     if (logRanges.length === 0) {
-      const message = l10n.t('No logs found in the active editor');
-      window.showInformationMessage(message);
+      window.showInformationMessage(
+        l10n.t('No logs found in the active editor'),
+      );
       return;
     }
 
@@ -347,12 +321,49 @@ export class LogController {
         }
       });
     });
-
-    const message = l10n.t('Selected logs have been uncommented');
-    window.showInformationMessage(message);
   }
 
   // Private methods
+
+  /**
+   * The extractFunctionName method.
+   * Extract the function name from the document at the specified position.
+   * @function extractFunctionName
+   * @private
+   * @async
+   * @param {TextDocument} document - The text document
+   * @param {Position} position - The position
+   * @memberof LogController
+   * @example
+   * this.extractFunctionName(document, position);
+   * @returns {Promise<string>} - The function
+   */
+  private async extractFunctionName(
+    document: TextDocument,
+    position: Position,
+  ): Promise<string> {
+    let functionName = '';
+    const symbols = (await commands.executeCommand(
+      'vscode.executeDocumentSymbolProvider',
+      document.uri,
+    )) as DocumentSymbol[];
+    if (symbols && symbols.length > 0) {
+      const funcSymbol = this.findFunctionSymbol(symbols, position);
+      if (funcSymbol) {
+        functionName = funcSymbol.name.trim();
+      }
+    }
+    if (!functionName) {
+      const regex =
+        /\b(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\(.*?\)\s*=>)/;
+      const lineText = document.lineAt(position.line).text;
+      const match = regex.exec(lineText);
+      if (match) {
+        functionName = match[1];
+      }
+    }
+    return functionName;
+  }
 
   /**
    * The findFunctionSymbol method.
@@ -387,5 +398,36 @@ export class LogController {
       }
     }
     return undefined;
+  }
+
+  /**
+   * The getCommentToken method.
+   * Get the comment token based on the language of the document.
+   * @function getCommentToken
+   * @private
+   * @param {TextDocument} document - The text document
+   * @memberof LogController
+   * @example
+   * this.getCommentToken(document);
+   * @returns {string} - The comment token
+   */
+  private getCommentToken(document: TextDocument): string {
+    const lang = document.languageId;
+    switch (lang) {
+      case 'javascript':
+      case 'typescript':
+      case 'java':
+      case 'csharp':
+      case 'cpp':
+      case 'go':
+        return '// ';
+      case 'python':
+      case 'ruby':
+        return '# ';
+      case 'php':
+        return '// ';
+      default:
+        return '// ';
+    }
   }
 }

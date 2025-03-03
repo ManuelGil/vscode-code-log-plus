@@ -53,7 +53,26 @@ export class LogService {
   // Properties
   // -----------------------------------------------------------------
 
-  // Private properties
+  /**
+   * The supported languages for the log snippets.
+   * @private
+   * @type {string[]}
+   * @memberof LogController
+   * @example
+   * this.supportedLanguages;
+   */
+  private readonly supportedLanguages: string[] = [
+    'javascript',
+    'typescript',
+    'java',
+    'csharp',
+    'php',
+    'dart',
+    'python',
+    'cpp',
+    'ruby',
+    'go',
+  ];
 
   /**
    * The default log command for the log snippets.
@@ -171,12 +190,14 @@ export class LogService {
    * @example
    * this.logService.generateLogSnippet(indent, fileName, variableName, lineNumber);
    *
-   * @param {string} indent - The indentation string
-   * @param {string} fileName - The name of the file
-   * @param {string} variableName - The name of the variable
-   * @param {number} lineNumber - The line number
+   * @param {string} indent - The indentation string.
+   * @param {string} fileName - The name (or relative path) of the file.
+   * @param {string} functionName - The name of the function.
+   * @param {string} variableName - The name of the variable.
+   * @param {number} lineNumber - The line number.
+   * @param {string} languageId - The language identifier from the document.
    *
-   * @returns {string} - The log snippet
+   * @returns {string} The generated log snippet.
    */
   generateLogSnippet(
     indent: string,
@@ -184,22 +205,35 @@ export class LogService {
     functionName: string,
     variableName: string,
     lineNumber: number,
+    languageId: string,
   ): string {
-    const template = this.getLogSnippetTemplate();
+    const { defaultLanguage } = this.config;
+
+    // Determine effective language: if not supported, use default from config.
+    const language = this.supportedLanguages.includes(languageId)
+      ? languageId
+      : defaultLanguage;
+
+    // Get the log snippet template (custom or default) for the effective language.
+    const template = this.getLogSnippetTemplate(language);
     if (!template) {
       return '';
     }
 
+    // Build the context for rendering the template.
     const renderContext = this.buildRenderContext({
       indent,
       fileName,
       functionName,
       variableName,
       lineNumber,
+      language, // use the effective language
     });
 
+    // Render the snippet using Mustache.
     let snippet = mustache.render(template, renderContext);
 
+    // Wrap the content if configured.
     snippet = this.wrapContent(
       snippet,
       renderContext.indent,
@@ -212,6 +246,7 @@ export class LogService {
       this.config.addEmptyLineAfterLog,
     );
 
+    // Remove the semicolon at the end of each line if not required.
     if (!this.config.isSemicolonRequired) {
       snippet = snippet.replace(/;$/gm, '');
     }
@@ -230,9 +265,12 @@ export class LogService {
    *
    * @param {string} code - The code to search for logs
    *
-   * @returns {Array<{ start: number; end: number; line: number; preview: string; fullText: string }>} - The log ranges
+   * @returns {Array<{ start: number; end: number; line: number; preview: string; fullText: string }>} An array of log entry objects.
    */
-  findLogEntries(code: string): Array<{
+  findLogEntries(
+    code: string,
+    languageId: string,
+  ): Array<{
     start: number;
     end: number;
     line: number;
@@ -240,10 +278,13 @@ export class LogService {
     fullText: string;
   }> {
     const { defaultLanguage, logCommand } = this.config;
+
+    const language = this.supportedLanguages.includes(languageId)
+      ? languageId
+      : defaultLanguage;
+
     const defaultLogCmd =
-      this.defaultLogCommand[
-        defaultLanguage as keyof typeof this.defaultLogCommand
-      ];
+      this.defaultLogCommand[language as keyof typeof this.defaultLogCommand];
     const resolvedCommand = logCommand || defaultLogCmd || 'console.log';
     const escapedCommand = this.escapeRegExp(resolvedCommand);
     const logPattern = new RegExp(`${escapedCommand}\\s*\\(`, 'g');
@@ -281,12 +322,16 @@ export class LogService {
    * @example
    * this.getLogSnippetTemplate();
    *
-   * @returns {string | null} - The log snippet template
+   * @param {string} language - The language identifier.
+   *
+   * @returns {string | null} The template string, or null if not found.
    */
-  private getLogSnippetTemplate(): string | null {
-    const { defaultLanguage, customLogTemplates } = this.config;
+  private getLogSnippetTemplate(language: string): string | null {
+    const { customLogTemplates } = this.config;
+
+    // Use the effective language when searching for a template.
     const templateConfig = this.getTemplateForLanguage(
-      defaultLanguage,
+      language,
       customLogTemplates,
     );
     if (!templateConfig || !templateConfig.template) {
@@ -314,7 +359,7 @@ export class LogService {
    * @param {string} params.variableName - The name of the variable
    * @param {number} params.lineNumber - The line number
    *
-   * @returns {Object} - The render context
+   * @returns {Object} The context object for Mustache rendering.
    */
   private buildRenderContext(params: {
     indent: string;
@@ -322,6 +367,7 @@ export class LogService {
     functionName: string;
     variableName: string;
     lineNumber: number;
+    language: string;
   }): {
     indent: string;
     logCommand: string;
@@ -338,7 +384,6 @@ export class LogService {
   } {
     const {
       logCommand,
-      defaultLanguage,
       useSingleQuotes,
       logMessagePrefix,
       messageLogDelimiter,
@@ -349,7 +394,7 @@ export class LogService {
 
     const defaultLogCmd =
       this.defaultLogCommand[
-        defaultLanguage as keyof typeof this.defaultLogCommand
+        params.language as keyof typeof this.defaultLogCommand
       ];
 
     return {
@@ -389,17 +434,17 @@ export class LogService {
    *  addEmptyAfter,
    * );
    *
-   * @param {string} content - The content to wrap
-   * @param {string} indent - The indentation string
-   * @param {string} logCommand - The log command
-   * @param {string} quote - The quote character
-   * @param {string} logMessagePrefix - The log message prefix
-   * @param {string} messageLogDelimiter - The message log delimiter
-   * @param {boolean} isWrapped - Whether the content is wrapped
-   * @param {boolean} addEmptyBefore - Whether to add an empty line before the content
-   * @param {boolean} addEmptyAfter - Whether to add an empty line after the content
+   * @param {string} content - The content to wrap.
+   * @param {string} indent - The indentation string.
+   * @param {string} logCommand - The log command.
+   * @param {string} quote - The quote character.
+   * @param {string} logMessagePrefix - The log message prefix.
+   * @param {string} messageLogDelimiter - The log message delimiter.
+   * @param {boolean} isWrapped - Whether to wrap the content.
+   * @param {boolean} addEmptyBefore - Whether to add an empty line before.
+   * @param {boolean} addEmptyAfter - Whether to add an empty line after.
    *
-   * @returns {string} - The wrapped content
+   * @returns {string} The wrapped content.
    */
   private wrapContent(
     content: string,
@@ -439,7 +484,7 @@ export class LogService {
    *
    * @param {string} str - The string to escape
    *
-   * @returns {string} - The escaped string
+   * @returns {string} The escaped string.
    */
   private escapeRegExp(str: string): string {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -454,10 +499,10 @@ export class LogService {
    * @example
    * this.findClosingParenthesis(code, startIndex);
    *
-   * @param {string} code - The code to search
-   * @param {number} startIndex - The start index
+   * @param {string} code - The code to search.
+   * @param {number} startIndex - The index where the opening parenthesis was found.
    *
-   * @returns {number} - The closing parenthesis index
+   * @returns {number} The index after the closing parenthesis.
    */
   private findClosingParenthesis(code: string, startIndex: number): number {
     let openCount = 0;
@@ -483,10 +528,10 @@ export class LogService {
    * @example
    * this.getTemplateForLanguage(language, customLogTemplates);
    *
-   * @param {string} language - The language to search for
-   * @param {LogTemplate[]} customLogTemplates - The custom log templates
+   * @param {string} language - The effective language.
+   * @param {LogTemplate[]} customLogTemplates - Optional custom templates.
    *
-   * @returns {LogTemplate | null} - The log template
+   * @returns {LogTemplate | null} The log template, or null if not found.
    */
   private getTemplateForLanguage(
     language: string,
