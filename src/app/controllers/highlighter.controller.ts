@@ -1,4 +1,12 @@
-import { Range, TextEditor, TextEditorDecorationType, window } from 'vscode';
+import {
+  l10n,
+  Range,
+  TextEditor,
+  TextEditorDecorationType,
+  window,
+} from 'vscode';
+
+import { LogService } from '../services';
 
 /**
  * The CodeHighlighterController class.
@@ -15,19 +23,6 @@ export class CodeHighlighterController {
   // -----------------------------------------------------------------
   // Properties
   // -----------------------------------------------------------------
-
-  // Public properties
-
-  /**
-   * The static instance of the CodeHighlighterController class.
-   *
-   * @static
-   * @type {CodeHighlighterController}
-   * @memberof CodeHighlighterController
-   * @example
-   * CodeHighlighterController.instance;
-   */
-  static instance: CodeHighlighterController;
 
   // Private properties
 
@@ -50,17 +45,14 @@ export class CodeHighlighterController {
    * Constructor for the CodeHighlighterController class
    *
    * @constructor
-   * @param {string} color - The color
-   * @param {string} style - The style
    * @public
    * @memberof CodeHighlighterController
    */
-  private constructor(
-    public color: string,
-    public style: string,
-  ) {
+  constructor(readonly service: LogService) {
+    const { highlightColor, highlightStyle } = this.service.config;
+
     this.decorationType = window.createTextEditorDecorationType({
-      textDecoration: `underline ${color} ${style}`,
+      textDecoration: `underline ${highlightColor} ${highlightStyle}`,
     });
   }
 
@@ -71,28 +63,60 @@ export class CodeHighlighterController {
   // Public methods
 
   /**
-   * The getInstance method.
-   * Get the instance of the CodeHighlighterController class.
-   *
-   * @function getInstance
-   * @param {string} color - The color
-   * @param {string} style - The style
+   * The highlightLogs method.
+   * Highlight the log statements in the active editor.
+   * @function highlightLogs
    * @public
-   * @memberof CodeHighlighterController
+   * @async
+   * @memberof LogController
    * @example
-   * CodeHighlighterController.getInstance(color, style);
-   *
-   * @returns {CodeHighlighterController} - The code highlighter controller instance
+   * controller.highlightLogs();
+   * @returns {Promise<void>} - The promise with no return value
    */
-  static getInstance(color: string, style: string) {
-    if (!CodeHighlighterController.instance) {
-      CodeHighlighterController.instance = new CodeHighlighterController(
-        color,
-        style,
-      );
+  async highlightLogs() {
+    const editor = window.activeTextEditor;
+
+    if (!editor) {
+      const message = l10n.t('No active editor available!');
+      window.showErrorMessage(message);
+      return;
     }
 
-    return CodeHighlighterController.instance;
+    const document = editor.document;
+    const code = document.getText();
+
+    const { languageId } = editor.document;
+
+    const logRanges = this.service.findLogEntries(code, languageId);
+
+    this.highlight(
+      editor,
+      logRanges,
+      l10n.t(
+        'You can remove the log statements by using the command: "Remove Logs"',
+      ),
+    );
+  }
+
+  /**
+   * The clearHighlights method.
+   * Remove the highlights from the active editor.
+   * @function removeHighlights
+   * @public
+   * @memberof LogController
+   * @example
+   * controller.clearHighlights();
+   */
+  clearHighlights() {
+    const editor = window.activeTextEditor;
+
+    if (!editor) {
+      const message = l10n.t('No active editor available!');
+      window.showErrorMessage(message);
+      return;
+    }
+
+    this.clear(editor);
   }
 
   /**
@@ -111,6 +135,8 @@ export class CodeHighlighterController {
     });
   }
 
+  // Private methods
+
   /**
    * The highlight method.
    * Highlight the ranges in the editor.
@@ -122,7 +148,7 @@ export class CodeHighlighterController {
    * @public
    * @memberof CodeHighlighterController
    */
-  highlight(
+  private highlight(
     editor: TextEditor,
     ranges: Array<{ start: number; end: number }>,
     hoverMessage: string,
@@ -145,7 +171,7 @@ export class CodeHighlighterController {
    * @public
    * @memberof CodeHighlighterController
    */
-  clear(editor: TextEditor) {
+  private clear(editor: TextEditor) {
     editor.setDecorations(this.decorationType, []);
   }
 }

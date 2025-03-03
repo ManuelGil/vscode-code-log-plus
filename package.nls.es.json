@@ -18,6 +18,7 @@
 	"codeLogPlus.customLogTemplates.template.description": "La plantilla del mensaje de registro. Utilice variables como {{{logCommand}}}, {{{logMessagePrefix}}}, {{{variableName}}}, etc. Ejemplo: \"{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}} {{{fileName}}}:{{{lineNumber}}} → {{{variableName}}}{{{quote}}})\"",
 	"codeLogPlus.customLogTemplates.description": "Plantillas de mensajes de registro personalizadas para diferentes lenguajes. Puede definir una plantilla por lenguaje utilizando variables disponibles (por ejemplo, {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}}).",
 	"codeLogPlus.insertLog.title": "Insertar registro",
+	"codeLogPlus.editLogs.title": "Editar registros",
 	"codeLogPlus.removeLogs.title": "Eliminar registros",
 	"codeLogPlus.highlightLogs.title": "Resaltar registros",
 	"codeLogPlus.clearHighlights.title": "Limpiar resaltados",

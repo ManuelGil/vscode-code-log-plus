@@ -10,7 +10,6 @@ import {
   workspace,
 } from 'vscode';
 
-import { ExtensionConfig } from '../configs';
 import { LogService } from '../services';
 
 /**

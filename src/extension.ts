@@ -10,7 +10,8 @@ import {
   ExtensionConfig,
   USER_PUBLISHER,
 } from './app/configs';
-import { LogController } from './app/controllers';
+import { CodeHighlighterController, LogController } from './app/controllers';
+import { LogService } from './app/services';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -73,7 +74,7 @@ export async function activate(context: vscode.ExtensionContext) {
       config.update(workspaceConfig);
 
       // Update the highlighter instance
-      logController.highlighter.update(
+      codeHighlightController.update(
         config.highlightColor,
         config.highlightStyle,
       );
@@ -145,11 +146,18 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   // -----------------------------------------------------------------
+  // Register LogService
+  // -----------------------------------------------------------------
+
+  // Register the LogService
+  const logService = new LogService(config);
+
+  // -----------------------------------------------------------------
   // Register LogController
   // -----------------------------------------------------------------
 
   // Create a new LogController
-  const logController = new LogController(config);
+  const logController = new LogController(logService);
 
   const disposableInsertLog = vscode.commands.registerCommand(
     `${EXTENSION_ID}.insertLog`,
@@ -166,6 +174,21 @@ export async function activate(context: vscode.ExtensionContext) {
       logController.insertTextInActiveEditor();
     },
   );
+  const disposableEditLogs = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.editLogs`,
+    () => {
+      if (!config.enable) {
+        const message = vscode.l10n.t(
+          '{0} is disabled in settings. Enable it to use its features',
+          EXTENSION_DISPLAY_NAME,
+        );
+        vscode.window.showWarningMessage(message);
+        return;
+      }
+
+      logController.editLogs();
+    },
+  );
   const disposableRemoveLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.removeLogs`,
     () => {
@@ -179,36 +202,6 @@ export async function activate(context: vscode.ExtensionContext) {
       }
 
       logController.removeLogs();
-    },
-  );
-  const disposableHighlightLogs = vscode.commands.registerCommand(
-    `${EXTENSION_ID}.highlightLogs`,
-    () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
-        return;
-      }
-
-      logController.highlightLogs();
-    },
-  );
-  const disposableClearHighlights = vscode.commands.registerCommand(
-    `${EXTENSION_ID}.clearHighlights`,
-    () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
-        return;
-      }
-
-      logController.clearHighlights();
     },
   );
   const disposableCommentLogs = vscode.commands.registerCommand(
@@ -242,8 +235,47 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  // -----------------------------------------------------------------
+  // Register CodeHighlightController
+  // -----------------------------------------------------------------
+
+  // Register the CodeHighlightController
+  const codeHighlightController = new CodeHighlighterController(logService);
+
+  const disposableHighlightLogs = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.highlightLogs`,
+    () => {
+      if (!config.enable) {
+        const message = vscode.l10n.t(
+          '{0} is disabled in settings. Enable it to use its features',
+          EXTENSION_DISPLAY_NAME,
+        );
+        vscode.window.showWarningMessage(message);
+        return;
+      }
+
+      codeHighlightController.highlightLogs();
+    },
+  );
+  const disposableClearHighlights = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.clearHighlights`,
+    () => {
+      if (!config.enable) {
+        const message = vscode.l10n.t(
+          '{0} is disabled in settings. Enable it to use its features',
+          EXTENSION_DISPLAY_NAME,
+        );
+        vscode.window.showWarningMessage(message);
+        return;
+      }
+
+      codeHighlightController.clearHighlights();
+    },
+  );
+
   context.subscriptions.push(
     disposableInsertLog,
+    disposableEditLogs,
     disposableRemoveLogs,
     disposableHighlightLogs,
     disposableClearHighlights,
