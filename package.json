@@ -2,7 +2,7 @@
 	"name": "vscode-code-log-plus",
 	"displayName": "CodeLog+",
 	"description": "CodeLog+ is a Visual Studio Code extension that helps you insert, remove, highlight, comment, and uncomment log statements in your code.",
-	"version": "1.4.0",
+	"version": "1.5.0",
 	"icon": "icon.png",
 	"license": "MIT",
 	"publisher": "imgildev",
@@ -441,6 +441,7 @@
 		"vscode-test": "^1.6.1"
 	},
 	"dependencies": {
-		"mustache": "^4.2.0"
+		"mustache": "^4.2.0",
+		"vscode-marketplace-client": "^1.0.0"
 	}
 }

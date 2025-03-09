@@ -68,6 +68,11 @@ export class LogController {
     const selection = editor.selection;
     const fileName = document.fileName;
     const lineNumber = selection.end.line;
+    const cursorPosition = selection.active;
+    const rangeUnderCursor = document.getWordRangeAtPosition(cursorPosition);
+    const wordUnderCursor = rangeUnderCursor
+      ? document.getText(rangeUnderCursor)
+      : null;
     const indent = ' '.repeat(
       document.lineAt(lineNumber).firstNonWhitespaceCharacterIndex,
     );
@@ -76,7 +81,8 @@ export class LogController {
       document,
       selection.start,
     );
-    const variableName = document.getText(selection).trim() || 'variable';
+    const variableName =
+      document.getText(selection).trim() || wordUnderCursor || 'variable';
 
     const { languageId } = editor.document;
 
@@ -121,7 +127,7 @@ export class LogController {
     const logs = this.service.findLogEntries(documentText, languageId);
     if (logs.length === 0) {
       window.showInformationMessage(
-        l10n.t('No log statements found for editing'),
+        l10n.t('No logs found in the active editor'),
       );
       return;
     }
@@ -132,14 +138,14 @@ export class LogController {
       log,
     }));
 
-    const placeholder = l10n.t('Select log statements to edit');
+    const placeholder = l10n.t('Selected logs have been commented');
     const selected = await window.showQuickPick(picks, {
       canPickMany: true,
       placeHolder: placeholder,
     });
     if (!selected || selected.length === 0) {
       window.showInformationMessage(
-        l10n.t('No log statements selected for editing'),
+        l10n.t('Selected logs have been uncommented'),
       );
       return;
     }

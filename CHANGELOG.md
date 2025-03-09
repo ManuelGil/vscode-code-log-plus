@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-03-09
+
+### Added
+
+- Add cursor position handling for gets the variable name in the active editor
+- Add vscode marketplace client dependency for version checks
+
+### Changed
+
+- Update Localization strings for the extension
+
 ## [1.4.0] - 2025-03-03
 
 ### Added
@@ -58,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.2.0...v1.2.1

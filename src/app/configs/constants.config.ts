@@ -34,7 +34,7 @@ export const EXTENSION_NAME: string = 'vscode-code-log-plus';
  *
  * @returns {string} - The name of the extension
  */
-export const EXTENSION_DISPLAY_NAME: string = 'codeLog+';
+export const EXTENSION_DISPLAY_NAME: string = 'CodeLog+';
 
 /**
  * USER_PUBLISHER: The publisher of the extension.
