@@ -20,11 +20,11 @@ export async function activate(context: vscode.ExtensionContext) {
   // The code you place here will be executed every time your command is executed
   let resource: vscode.WorkspaceFolder | undefined;
 
-  // Check if there are workspace folders
   if (
     !vscode.workspace.workspaceFolders ||
     vscode.workspace.workspaceFolders.length === 0
   ) {
+    // Check if there are workspace folders
     const message = vscode.l10n.t(
       'No workspace folders are open. Please open a workspace folder to use this extension',
     );
@@ -32,8 +32,8 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  // Optionally, prompt the user to select a workspace folder if multiple are available
   if (vscode.workspace.workspaceFolders.length === 1) {
+    // Optionally, prompt the user to select a workspace folder if multiple are available
     resource = vscode.workspace.workspaceFolders[0];
   } else {
     const placeHolder = vscode.l10n.t(
@@ -95,8 +95,8 @@ export async function activate(context: vscode.ExtensionContext) {
   // Get the current version of the extension
   const currentVersion = context.extension.packageJSON.version;
 
-  // Check if the extension is running for the first time
   if (!previousVersion) {
+    // Check if the extension is running for the first time
     const message = vscode.l10n.t(
       'Welcome to {0} version {1}! The extension is now active',
       [EXTENSION_DISPLAY_NAME, currentVersion],
@@ -119,7 +119,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ];
 
     const message = vscode.l10n.t(
-      'New version of {0} is available. Check out the release notes for version {1}',
+      "The {0} extension has been updated. Check out what's new in version {1}",
       [EXTENSION_DISPLAY_NAME, currentVersion],
     );
     vscode.window.showInformationMessage(message, ...actions).then((option) => {
@@ -146,6 +146,11 @@ export async function activate(context: vscode.ExtensionContext) {
     context.globalState.update('version', currentVersion);
   }
 
+  // -----------------------------------------------------------------
+  // Check for updates
+  // -----------------------------------------------------------------
+
+  // Check for updates to the extension
   try {
     // Retrieve the latest version
     VSCodeMarketplaceClient.getLatestVersion(
@@ -212,7 +217,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
@@ -227,7 +232,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
@@ -242,7 +247,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
@@ -257,7 +262,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
@@ -272,7 +277,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
@@ -295,7 +300,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
@@ -310,7 +315,7 @@ export async function activate(context: vscode.ExtensionContext) {
     () => {
       if (!config.enable) {
         const message = vscode.l10n.t(
-          '{0} is disabled in settings. Enable it to use its features',
+          'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         );
         vscode.window.showWarningMessage(message);
