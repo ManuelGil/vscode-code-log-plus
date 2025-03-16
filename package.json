@@ -407,7 +407,13 @@
 				"fileMatch": ".vscode/settings.json",
 				"url": "./schemas/config.schema.json"
 			}
-		]
+		],
+        "menus": {
+            "editor/context": [{
+                "command": "codeLogPlus.insertLog",
+                "group": "navigation"
+            }]
+        }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
