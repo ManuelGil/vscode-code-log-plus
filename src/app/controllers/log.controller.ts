@@ -103,7 +103,6 @@ export class LogController {
     await editor.edit((editBuilder) => {
       return editBuilder.insert(insertPosition, logSnippet);
     });
-
     editor.selection = new Selection(nextLineEndPosition, nextLineEndPosition);
   }
 
