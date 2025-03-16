@@ -100,10 +100,10 @@ export class LogController {
     const nextLineEndPosition = editor.document.lineAt(lineNumber + 1).range
       .end;
 
-    editor.selection = new Selection(nextLineEndPosition, nextLineEndPosition);
     await editor.edit((editBuilder) => {
       return editBuilder.insert(insertPosition, logSnippet);
     });
+    editor.selection = new Selection(nextLineEndPosition, nextLineEndPosition);
   }
 
   /**
