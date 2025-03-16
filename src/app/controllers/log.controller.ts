@@ -8,6 +8,7 @@ import {
   l10n,
   window,
   workspace,
+  Selection,
 } from 'vscode';
 
 import { LogService } from '../services';
@@ -96,9 +97,13 @@ export class LogController {
     );
 
     const insertPosition = new Position(lineNumber + 1, 0);
+    const nextLineEndPosition = editor.document.lineAt(lineNumber + 1).range
+      .end;
+
     await editor.edit((editBuilder) => {
       return editBuilder.insert(insertPosition, logSnippet);
     });
+    editor.selection = new Selection(nextLineEndPosition, nextLineEndPosition);
   }
 
   /**
