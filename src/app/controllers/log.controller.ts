@@ -1,17 +1,20 @@
 import {
   DocumentSymbol,
   Position,
+  ProgressLocation,
   Range,
+  Selection,
   SymbolKind,
   TextDocument,
+  TextEditor,
   commands,
   l10n,
   window,
   workspace,
-  Selection,
 } from 'vscode';
 
 import { LogService } from '../services';
+import { escapeRegExp } from '../helpers';
 
 /**
  * The LogController class.
@@ -60,8 +63,7 @@ export class LogController {
   async insertTextInActiveEditor(): Promise<void> {
     const editor = window.activeTextEditor;
 
-    if (!editor) {
-      window.showErrorMessage(l10n.t('No active editor available!'));
+    if (!this.validateEditor(editor)) {
       return;
     }
 
@@ -117,19 +119,33 @@ export class LogController {
    * controller.editLogs();
    * @returns {Promise<void>} - The promise with no return value
    */
-  async editLogs() {
+  async editLogs(): Promise<void> {
     const editor = window.activeTextEditor;
 
-    if (!editor) {
-      window.showErrorMessage(l10n.t('No active editor available!'));
+    if (!this.validateEditor(editor)) {
       return;
     }
 
-    const documentText = editor.document.getText();
+    const document = editor.document;
+    const code = this.getDocumentText(document);
+    if (!code) {
+      return;
+    }
 
     const { languageId } = editor.document;
 
-    const logs = this.service.findLogEntries(documentText, languageId);
+    // Use progress indicator for finding logs in large files
+    const logs = await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Searching for log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        return this.service.findLogEntries(code, languageId);
+      },
+    );
+
     if (logs.length === 0) {
       window.showInformationMessage(
         l10n.t('No logs found in the active editor'),
@@ -164,20 +180,31 @@ export class LogController {
       return;
     }
 
-    await editor.edit((editBuilder) => {
-      const sorted = selected.sort((a, b) => b.log.start - a.log.start);
-      sorted.forEach((item) => {
-        const startPos = editor.document.positionAt(item.log.start);
-        const endPos = editor.document.positionAt(item.log.end);
-        const range = new Range(startPos, endPos);
-        const logText = editor.document.getText(range);
-        const updatedLogText = logText.replace(
-          /^(\s*)([a-zA-Z0-9_.]+)(\s*\()/gm,
-          `$1${newLogCommand}$3`,
-        );
-        editBuilder.replace(range, updatedLogText);
-      });
-    });
+    // Use progress indicator for editing logs
+    await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Updating log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        await editor.edit((editBuilder) => {
+          const sorted = selected.sort((a, b) => b.log.start - a.log.start);
+          sorted.forEach((item) => {
+            const startPos = editor.document.positionAt(item.log.start);
+            const endPos = editor.document.positionAt(item.log.end);
+            const range = new Range(startPos, endPos);
+            const logText = editor.document.getText(range);
+            const updatedLogText = logText.replace(
+              /^(\s*)([a-zA-Z0-9_.]+)(\s*\()/gm,
+              `$1${newLogCommand}$3`,
+            );
+            editBuilder.replace(range, updatedLogText);
+          });
+        });
+        return;
+      },
+    );
   }
 
   /**
@@ -191,19 +218,33 @@ export class LogController {
    * controller.removeLogs();
    * @returns {Promise<void>} - The promise with no return value
    */
-  async removeLogs() {
+  async removeLogs(): Promise<void> {
     const editor = window.activeTextEditor;
 
-    if (!editor) {
-      window.showErrorMessage(l10n.t('No active editor available!'));
+    if (!this.validateEditor(editor)) {
       return;
     }
 
-    const documentText = editor.document.getText();
+    const document = editor.document;
+    const code = this.getDocumentText(document);
+    if (!code) {
+      return;
+    }
 
     const { languageId } = editor.document;
 
-    const logs = this.service.findLogEntries(documentText, languageId);
+    // Use progress indicator for searching logs in large files
+    const logs = await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Searching for log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        return this.service.findLogEntries(code, languageId);
+      },
+    );
+
     if (logs.length === 0) {
       window.showInformationMessage(l10n.t('No logs found for removal'));
       return;
@@ -225,22 +266,53 @@ export class LogController {
       return;
     }
 
-    await editor.edit((editBuilder) => {
-      const sorted = selected.sort((a, b) => b.log.line - a.log.line);
-      sorted.forEach((item) => {
-        const startPos = editor.document.positionAt(item.log.start);
-        let endPos = editor.document.positionAt(item.log.end);
+    // Show progress indicator while removing logs
+    await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Removing selected logs...'),
+        cancellable: false,
+      },
+      async () => {
+        await editor.edit((editBuilder) => {
+          const sorted = selected.sort((a, b) => b.log.line - a.log.line);
+          sorted.forEach((item) => {
+            const startPos = editor.document.positionAt(item.log.start);
+            const endPos = editor.document.positionAt(item.log.end);
 
-        const nextCharRange = new Range(endPos, endPos.translate(0, 1));
-        const nextChar = editor.document.getText(nextCharRange);
-        if (nextChar === ';') {
-          endPos = endPos.translate(0, 1);
-        }
+            const line = editor.document.lineAt(startPos.line);
+            const lineText = line.text.trim();
+            const logText = editor.document
+              .getText(new Range(startPos, endPos))
+              .trim();
 
-        const range = new Range(startPos, endPos);
-        editBuilder.delete(range);
-      });
-    });
+            // If the log statement is the only content on the line (ignoring whitespace),
+            // delete the entire line including the line break.
+            // Also remove a trailing semicolon and whitespace if present.
+            if (
+              lineText === logText ||
+              lineText === logText + ';' ||
+              lineText === logText + '; '
+            ) {
+              editBuilder.delete(line.rangeIncludingLineBreak);
+            } else {
+              // Otherwise, just delete the log statement itself.
+              editBuilder.delete(new Range(startPos, endPos));
+              // Remove trailing semicolon if it immediately follows the log statement
+              const afterLogPos = editor.document.positionAt(item.log.end);
+              const afterLogChar = editor.document.getText(
+                new Range(afterLogPos, afterLogPos.translate(0, 1)),
+              );
+              if (afterLogChar === ';') {
+                editBuilder.delete(
+                  new Range(afterLogPos, afterLogPos.translate(0, 1)),
+                );
+              }
+            }
+          });
+        });
+      },
+    );
 
     window.showInformationMessage(l10n.t('Selected logs have been removed'));
   }
@@ -256,35 +328,61 @@ export class LogController {
    * controller.commentLogs();
    * @returns {Promise<void>} - The promise with no return value
    */
-  async commentLogs() {
+  async commentLogs(): Promise<void> {
     const editor = window.activeTextEditor;
 
-    if (!editor) {
-      const message = l10n.t('No active editor available!');
-      window.showErrorMessage(message);
+    if (!this.validateEditor(editor)) {
       return;
     }
 
     const document = editor.document;
-    const code = document.getText();
+    const code = this.getDocumentText(document);
+    if (!code) {
+      return;
+    }
 
     const { languageId } = editor.document;
 
-    const logRanges = this.service.findLogEntries(code, languageId);
+    // Use progress indicator for finding logs
+    const logRanges = await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Searching for log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        return this.service.findLogEntries(code, languageId);
+      },
+    );
+
     if (logRanges.length === 0) {
       window.showInformationMessage(
         l10n.t('No logs found in the active editor'),
       );
       return;
     }
+
     const commentToken = this.getCommentToken(document);
 
-    await editor.edit((editBuilder) => {
-      logRanges.forEach((log) => {
-        const startPos = document.positionAt(log.start);
-        editBuilder.insert(startPos, commentToken);
-      });
-    });
+    // Show progress indicator while commenting logs
+    await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Commenting log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        await editor.edit((editBuilder) => {
+          logRanges.forEach((log) => {
+            const startPos = document.positionAt(log.start);
+            editBuilder.insert(startPos, commentToken);
+          });
+        });
+        return;
+      },
+    );
+
+    window.showInformationMessage(l10n.t('Selected logs have been commented'));
   }
 
   /**
@@ -298,42 +396,121 @@ export class LogController {
    * controller.uncommentLogs();
    * @returns {Promise<void>} - The promise with no return value
    */
-  async uncommentLogs() {
+  async uncommentLogs(): Promise<void> {
     const editor = window.activeTextEditor;
 
-    if (!editor) {
-      window.showErrorMessage(l10n.t('No active editor available!'));
+    if (!this.validateEditor(editor)) {
       return;
     }
 
     const document = editor.document;
-    const code = document.getText();
+    const code = this.getDocumentText(document);
+    if (!code) {
+      return;
+    }
 
     const { languageId } = editor.document;
 
-    const logRanges = this.service.findLogEntries(code, languageId);
+    // Show progress indicator while searching for commented logs
+    const uncommentRanges = await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Searching for commented log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        const resolvedCommand = this.service.getLogCommand(languageId);
+        const escapedCommand = escapeRegExp(resolvedCommand);
+        const commentToken = this.getCommentToken(document);
 
-    if (logRanges.length === 0) {
+        const commentPattern = new RegExp(
+          `(^\\s*)(${escapeRegExp(commentToken)})(\\s*)(${escapedCommand})(\\s*\\()`,
+          'gm',
+        );
+
+        const ranges: Array<{ start: number; end: number }> = [];
+
+        let match: RegExpExecArray | null;
+
+        while ((match = commentPattern.exec(code))) {
+          const start = match.index + match[1].length;
+          const end = start + match[2].length + match[3].length;
+          ranges.push({ start, end });
+        }
+
+        return ranges;
+      },
+    );
+
+    if (uncommentRanges.length === 0) {
       window.showInformationMessage(
-        l10n.t('No logs found in the active editor'),
+        l10n.t('No commented logs found in the active editor'),
       );
       return;
     }
 
-    await editor.edit((editBuilder) => {
-      logRanges.forEach((log) => {
-        const start = document.positionAt(log.start - 3);
-        const end = document.lineAt(log.line - 1).range.end;
-        const range = new Range(start, end);
-        const line = document.getText(range);
-        if (line.startsWith('// ')) {
-          editBuilder.delete(range.with(start, start.translate(0, 3)));
-        }
-      });
-    });
+    // Show progress indicator while uncommenting logs
+    await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Uncommenting log statements...'),
+        cancellable: false,
+      },
+      async () => {
+        await editor.edit((editBuilder) => {
+          uncommentRanges
+            .sort((a, b) => b.start - a.start)
+            .forEach((range) => {
+              const startPos = document.positionAt(range.start);
+              const endPos = document.positionAt(range.end);
+              editBuilder.delete(new Range(startPos, endPos));
+            });
+        });
+        return;
+      },
+    );
+
+    window.showInformationMessage(l10n.t('Logs have been uncommented'));
   }
 
   // Private methods
+
+  /**
+   * Validates if the editor is available and active
+   * @function validateEditor
+   * @private
+   * @param {TextEditor | undefined} editor - The editor to validate
+   * @returns {boolean} - Whether the editor is valid
+   */
+  private validateEditor(editor: TextEditor | undefined): editor is TextEditor {
+    if (!editor) {
+      window.showErrorMessage(l10n.t('No active editor available!'));
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Gets the text from a document with validation
+   * @function getDocumentText
+   * @private
+   * @param {TextDocument} document - The document to get text from
+   * @returns {string | null} - The document text or null if invalid
+   */
+  private getDocumentText(document: TextDocument): string | null {
+    if (!document) {
+      window.showErrorMessage(l10n.t('No active document available!'));
+      return null;
+    }
+
+    const text = document.getText();
+    if (!text) {
+      window.showErrorMessage(l10n.t('The active editor is empty!'));
+      return null;
+    }
+
+    return text;
+  }
 
   /**
    * The extractFunctionName method.

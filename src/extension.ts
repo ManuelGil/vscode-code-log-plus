@@ -11,11 +11,39 @@ import {
   ExtensionConfig,
   USER_PUBLISHER,
 } from './app/configs';
-import { CodeHighlighterController, LogController } from './app/controllers';
+import {
+  CodeHighlighterController,
+  ListLogController,
+  LogController,
+} from './app/controllers';
 import { LogService } from './app/services';
+import { ListLogProvider } from './app/providers';
+
+/**
+ * Helper function to check if the extension is enabled
+ * @param config The extension configuration
+ * @returns True if the extension is enabled, false otherwise
+ */
+function isExtensionEnabled(config: ExtensionConfig): boolean {
+  if (!config.enable) {
+    const message = vscode.l10n.t(
+      'The {0} extension is disabled in settings. Enable it to use its features',
+      EXTENSION_DISPLAY_NAME,
+    );
+    vscode.window.showWarningMessage(message);
+    return false;
+  }
+
+  return true;
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
+/**
+ * This method is called when your extension is activated
+ * Sets up the extension, registers commands, and initializes services
+ * @param context The extension context provided by VSCode
+ */
 export async function activate(context: vscode.ExtensionContext) {
   // The code you place here will be executed every time your command is executed
   let resource: vscode.WorkspaceFolder | undefined;
@@ -32,10 +60,33 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
+  // Try to load previously selected workspace folder from global state
+  const previousFolderUri = context.globalState.get<string>(
+    'selectedWorkspaceFolder',
+  );
+  let previousFolder: vscode.WorkspaceFolder | undefined;
+
+  if (previousFolderUri) {
+    // Find the workspace folder by URI
+    previousFolder = vscode.workspace.workspaceFolders.find(
+      (folder) => folder.uri.toString() === previousFolderUri,
+    );
+  }
+
   if (vscode.workspace.workspaceFolders.length === 1) {
-    // Optionally, prompt the user to select a workspace folder if multiple are available
+    // Determine the workspace folder to use
+    // Only one workspace folder available
     resource = vscode.workspace.workspaceFolders[0];
+  } else if (previousFolder) {
+    // Use previously selected workspace folder if available
+    resource = previousFolder;
+
+    // Notify the user which workspace is being used
+    vscode.window.showInformationMessage(
+      vscode.l10n.t('Using workspace folder: {0}', [resource.name]),
+    );
   } else {
+    // Multiple workspace folders and no previous selection
     const placeHolder = vscode.l10n.t(
       'Select a workspace folder to use. This folder will be used to load workspace-specific configuration for the extension',
     );
@@ -44,6 +95,14 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     resource = selectedFolder;
+
+    // Remember the selection for future use
+    if (resource) {
+      context.globalState.update(
+        'selectedWorkspaceFolder',
+        resource.uri.toString(),
+      );
+    }
   }
 
   // -----------------------------------------------------------------
@@ -61,6 +120,25 @@ export async function activate(context: vscode.ExtensionContext) {
       EXTENSION_ID,
       resource?.uri,
     );
+
+    if (event.affectsConfiguration(`${EXTENSION_ID}.enable`, resource?.uri)) {
+      const isEnabled = workspaceConfig.get<boolean>('enable');
+
+      config.update(workspaceConfig);
+
+      if (isEnabled) {
+        const message = vscode.l10n.t(
+          'The {0} extension is now enabled and ready to use',
+          [EXTENSION_DISPLAY_NAME],
+        );
+        vscode.window.showInformationMessage(message);
+      } else {
+        const message = vscode.l10n.t('The {0} extension is now disabled', [
+          EXTENSION_DISPLAY_NAME,
+        ]);
+        vscode.window.showInformationMessage(message);
+      }
+    }
 
     if (
       event.affectsConfiguration(
@@ -199,6 +277,42 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   // -----------------------------------------------------------------
+  // Register commands
+  // -----------------------------------------------------------------
+
+  // Register a command to change the selected workspace folder
+  const disposableChangeWorkspace = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.changeWorkspace`,
+    async () => {
+      const placeHolder = vscode.l10n.t('Select a workspace folder to use');
+      const selectedFolder = await vscode.window.showWorkspaceFolderPick({
+        placeHolder,
+      });
+
+      if (selectedFolder) {
+        resource = selectedFolder;
+        context.globalState.update(
+          'selectedWorkspaceFolder',
+          resource.uri.toString(),
+        );
+
+        // Update configuration for the new workspace folder
+        const workspaceConfig = vscode.workspace.getConfiguration(
+          EXTENSION_ID,
+          resource?.uri,
+        );
+        config.update(workspaceConfig);
+
+        vscode.window.showInformationMessage(
+          vscode.l10n.t('Switched to workspace folder: {0}', [resource.name]),
+        );
+      }
+    },
+  );
+
+  context.subscriptions.push(disposableChangeWorkspace);
+
+  // -----------------------------------------------------------------
   // Register LogService
   // -----------------------------------------------------------------
 
@@ -215,12 +329,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableInsertLog = vscode.commands.registerCommand(
     `${EXTENSION_ID}.insertLog`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -230,12 +339,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableEditLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.editLogs`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -245,12 +349,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableRemoveLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.removeLogs`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -260,12 +359,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableCommentLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.commentLogs`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -275,12 +369,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableUncommentLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.uncommentLogs`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -298,12 +387,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableHighlightLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.highlightLogs`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -313,12 +397,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const disposableClearHighlights = vscode.commands.registerCommand(
     `${EXTENSION_ID}.clearHighlights`,
     () => {
-      if (!config.enable) {
-        const message = vscode.l10n.t(
-          'The {0} extension is disabled in settings. Enable it to use its features',
-          EXTENSION_DISPLAY_NAME,
-        );
-        vscode.window.showWarningMessage(message);
+      if (!isExtensionEnabled(config)) {
         return;
       }
 
@@ -335,7 +414,79 @@ export async function activate(context: vscode.ExtensionContext) {
     disposableCommentLogs,
     disposableUncommentLogs,
   );
+
+  // -----------------------------------------------------------------
+  // Register ListLogProvider and list commands
+  // -----------------------------------------------------------------
+
+  // Create a new ListLogController
+  const listLogController = new ListLogController(config);
+
+  // Create a new ListLogProvider
+  const listLogProvider = new ListLogProvider(listLogController, logService);
+
+  // Register the list provider
+  const listLogTreeView = vscode.window.createTreeView(
+    `${EXTENSION_ID}.listLogView`,
+    {
+      treeDataProvider: listLogProvider,
+      showCollapseAll: true,
+    },
+  );
+
+  const disposableRefreshList = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.refreshList`,
+    () => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogProvider.refresh();
+    },
+  );
+
+  const disposableOpenFile = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.openFile`,
+    (uri) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.openFile(uri);
+    },
+  );
+
+  const disposableGotoLine = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.gotoLine`,
+    (uri, line) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.gotoLine(uri, line);
+    },
+  );
+
+  context.subscriptions.push(
+    listLogTreeView,
+    disposableRefreshList,
+    disposableOpenFile,
+    disposableGotoLine,
+  );
+
+  // -----------------------------------------------------------------
+  // Register ListLogProvider and ListMethodsProvider events
+  // -----------------------------------------------------------------
+
+  vscode.workspace.onDidSaveTextDocument(() => {
+    listLogProvider.refresh();
+  });
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+/**
+ * This method is called when your extension is deactivated
+ * Clean up any resources that the extension allocated
+ */
+export function deactivate() {
+  // Currently no cleanup needed
+}

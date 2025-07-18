@@ -4,6 +4,7 @@
 	"codeLogPlus.logCommand.description": "The command used for logging messages",
 	"codeLogPlus.isLogMessageWrapped.description": "Determine whether to wrap the log message with additional formatting or markers",
 	"codeLogPlus.logMessagePrefix.description": "Prefix added at the beginning of the log message",
+	"codeLogPlus.useAccessibleLogs.description": "Use accessible logs. If true, the extension will generate logs that are more accessible for screen readers and other assistive technologies",
 	"codeLogPlus.messageLogDelimiter.description": "Delimiter to separate different elements inside the log message (e.g., filename, line number, class, function, variable)",
 	"codeLogPlus.messageLogSuffix.description": "Suffix added at the end of the log message",
 	"codeLogPlus.isSemicolonRequired.description": "Append a semicolon at the end of the log statement if required by the programming language",
@@ -17,11 +18,19 @@
 	"codeLogPlus.customLogTemplates.language.description": "The programming language for which this template applies (e.g., 'javascript', 'python', 'dart')",
 	"codeLogPlus.customLogTemplates.template.description": "The log message template. Use variables like {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, etc. Example: \"{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}} {{{fileName}}}:{{{lineNumber}}} → {{{variableName}}}{{{quote}}})\"",
 	"codeLogPlus.customLogTemplates.description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}})",
+	"codeLogPlus.files.excludedFilePatterns.description": "File patterns excluded from log searching. For example, ['**/node_modules/**', '**/vendor/**']",
+	"codeLogPlus.files.maxSearchRecursionDepth.description": "Maximum recursion depth for searching files. A value of 0 means no limit",
+	"codeLogPlus.files.supportsHiddenFiles.description": "Whether the extension supports hidden files. If true, hidden files will be included in log searching",
+	"codeLogPlus.files.preserveGitignoreSettings.description": "Whether the extension should respect .gitignore settings. If true, files ignored by Git will not be included in log searching",
+	"codeLogPlus.files.includeFilePath.description": "Include the file path in log search results. If true, the full file path will be shown in the results",
 	"codeLogPlus.insertLog.title": "Insert log",
 	"codeLogPlus.editLogs.title": "Edit logs",
 	"codeLogPlus.removeLogs.title": "Remove logs",
 	"codeLogPlus.highlightLogs.title": "Highlight logs",
 	"codeLogPlus.clearHighlights.title": "Clear highlights",
 	"codeLogPlus.commentLogs.title": "Comment logs",
-	"codeLogPlus.uncommentLogs.title": "Uncomment logs"
+	"codeLogPlus.uncommentLogs.title": "Uncomment logs",
+	"codeLogPlus.listLogView.title": "Log Statements",
+	"codeLogPlus.listLogView.refreshList.title": "Refresh log list",
+	"codeLogPlus.listLogView.welcomeMessage": "To effectively capture files, ensure you include the file type within the workspace settings.\n[Open Workspace Setting](command:workbench.action.openWorkspaceSettingsFile)\nTo learn more about how to use the Starter Kit [read our docs](https://github.com/ManuelGil/vscode-code-log-plus)."
 }

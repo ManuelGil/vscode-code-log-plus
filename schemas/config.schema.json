@@ -56,6 +56,12 @@
 			"scope": "resource",
 			"description": "Prefix added at the beginning of the log message."
 		},
+		"codeLogPlus.useAccessibleLogs": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Use accessible logs. If true, the extension will generate logs that are more accessible for screen readers and other assistive technologies."
+		},
 		"codeLogPlus.messageLogDelimiter": {
 			"type": "string",
 			"default": "~",
@@ -70,7 +76,7 @@
 		},
 		"codeLogPlus.isSemicolonRequired": {
 			"type": "boolean",
-			"default": false,
+			"default": true,
 			"scope": "resource",
 			"description": "Append a semicolon at the end of the log statement if required by the programming language."
 		},
@@ -167,6 +173,48 @@
 			"default": [],
 			"scope": "resource",
 			"description": "Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}})."
+		},
+		"codeLogPlus.files.includedFilePatterns": {
+			"type": "array",
+			"default": ["**/*.{js,jsx,ts,tsx}"],
+			"scope": "resource",
+			"description": "File patterns included in log searching. For example, ['**/*.js', '**/*.ts', '**/*.java', '**/*.cs', '**/*.php', '**/*.py', '**/*.cpp', '**/*.rb', '**/*.go', '**/*.dart']"
+		},
+		"codeLogPlus.files.excludedFilePatterns": {
+			"type": "array",
+			"default": [
+				"**/node_modules/**",
+				"**/dist/**",
+				"**/out/**",
+				"**/build/**",
+				"**/vendor/**"
+			],
+			"scope": "resource",
+			"description": "Patterns of files to exclude from the search. These patterns are used to filter out files that should not be included in the log search results."
+		},
+		"codeLogPlus.files.maxSearchRecursionDepth": {
+			"type": "number",
+			"default": 0,
+			"scope": "resource",
+			"description": "Maximum recursion depth for searching files. A value of 0 means no limit. This setting controls how deep the extension will search through directories when looking for files to log."
+		},
+		"codeLogPlus.files.supportsHiddenFiles": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "The extension supports hidden files. If set to false, hidden files will not be included in the search results."
+		},
+		"codeLogPlus.files.preserveGitignoreSettings": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "If true, the extension will respect the .gitignore settings when searching for files. If false, it will ignore .gitignore settings."
+		},
+		"codeLogPlus.files.includeFilePath": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "Include the file path in the log message. If set to false, only the log message will be included without the file path."
 		}
 	}
 }

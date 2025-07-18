@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-07-17
+
+### Added
+
+- Add `inflector.helper.ts` with functions for `camelCase`, `PascalCase`, `snake_case`, and more.
+- Add `text.helper.ts` for escaping special characters in regex.
+- Add `NodeModel` class to represent files and folders in the workspace tree.
+- Implement `ListLogProvider` to handle the display and interaction with log files.
+- Add `getLogCommand` method to `LogService` for better command management.
+- Add accessibility option `useAccessibleLogs` to replace emojis with text alternatives in log messages, improving screen reader compatibility
+
+### Changed
+
+- Integrate with `LogService` to fetch and display log entries.
+- Update log message handling to support accessible prefixes for emojis.
+- Improve workspace folder selection and persistence in global state.
+- Implement progress indicators for long-running operations on large files to enhance user experience
+
 ## [1.6.0] - 2025-03-16
 
 ### Added
@@ -81,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.4.0...v1.5.0

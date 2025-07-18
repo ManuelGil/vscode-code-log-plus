@@ -1,5 +1,7 @@
 import * as mustache from 'mustache';
+
 import { ExtensionConfig } from '../configs';
+import { escapeRegExp } from '../helpers';
 
 /**
  * The LogCommandMap interface.
@@ -207,7 +209,12 @@ export class LogService {
     lineNumber: number,
     languageId: string,
   ): string {
-    const { defaultLanguage } = this.config;
+    const {
+      defaultLanguage,
+      isLogMessageWrapped,
+      addEmptyLineBeforeLogMessage,
+      addEmptyLineAfterLog,
+    } = this.config;
 
     // Determine effective language: if not supported, use default from config.
     const language = this.supportedLanguages.includes(languageId)
@@ -241,9 +248,9 @@ export class LogService {
       renderContext.quote,
       renderContext.logMessagePrefix,
       renderContext.messageLogDelimiter,
-      this.config.isLogMessageWrapped,
-      this.config.addEmptyLineBeforeLogMessage,
-      this.config.addEmptyLineAfterLog,
+      isLogMessageWrapped,
+      addEmptyLineBeforeLogMessage,
+      addEmptyLineAfterLog,
     );
 
     // Remove the semicolon at the end of each line if not required.
@@ -277,16 +284,8 @@ export class LogService {
     preview: string;
     fullText: string;
   }> {
-    const { defaultLanguage, logCommand } = this.config;
-
-    const language = this.supportedLanguages.includes(languageId)
-      ? languageId
-      : defaultLanguage;
-
-    const defaultLogCmd =
-      this.defaultLogCommand[language as keyof typeof this.defaultLogCommand];
-    const resolvedCommand = logCommand || defaultLogCmd || 'console.log';
-    const escapedCommand = this.escapeRegExp(resolvedCommand);
+    const resolvedCommand = this.getLogCommand(languageId);
+    const escapedCommand = escapeRegExp(resolvedCommand);
     const logPattern = new RegExp(`${escapedCommand}\\s*\\(`, 'g');
 
     const logRanges: Array<{
@@ -298,6 +297,7 @@ export class LogService {
     }> = [];
 
     let match: RegExpExecArray | null;
+
     while ((match = logPattern.exec(code))) {
       const start = match.index;
       const end = this.findClosingParenthesis(code, start);
@@ -309,6 +309,32 @@ export class LogService {
     }
 
     return logRanges;
+  }
+
+  /**
+   * The getLogCommand method.
+   * Get the log command for the specified language.
+   * @function getLogCommand
+   * @public
+   * @memberof LogService
+   * @example
+   * this.logService.getLogCommand(languageId);
+   *
+   * @param {string} languageId - The language identifier from the document.
+   *
+   * @returns {string} The log command for the specified language.
+   */
+  getLogCommand(languageId: string): string {
+    const { defaultLanguage, logCommand } = this.config;
+
+    const language = this.supportedLanguages.includes(languageId)
+      ? languageId
+      : defaultLanguage;
+
+    const defaultLogCmd =
+      this.defaultLogCommand[language as keyof typeof this.defaultLogCommand];
+
+    return logCommand || defaultLogCmd || 'console.log';
   }
 
   // Private methods
@@ -390,6 +416,7 @@ export class LogService {
       messageLogSuffix,
       literalOpen,
       literalClose,
+      useAccessibleLogs,
     } = this.config;
 
     const defaultLogCmd =
@@ -397,11 +424,34 @@ export class LogService {
         params.language as keyof typeof this.defaultLogCommand
       ];
 
+    // Convert emoji prefixes to accessible alternatives when needed
+    let accessiblePrefix = logMessagePrefix;
+    if (useAccessibleLogs) {
+      // Map common emoji prefixes to text alternatives
+      const emojiToText: Record<string, string> = {
+        '🔍': '[DEBUG]',
+        '⚠️': '[WARNING]',
+        '❌': '[ERROR]',
+        '✅': '[SUCCESS]',
+        '📝': '[INFO]',
+        '🚀': '[LAUNCH]',
+        '💡': '[TIP]',
+        '🛑': '[STOP]',
+        '⭐': '[IMPORTANT]',
+        '🔄': '[UPDATE]',
+        '🔒': '[SECURE]',
+        '📊': '[DATA]',
+      };
+
+      // Replace emoji with text equivalent if it exists, otherwise use the original
+      accessiblePrefix = emojiToText[logMessagePrefix] || logMessagePrefix;
+    }
+
     return {
       indent: params.indent,
       logCommand: logCommand || defaultLogCmd || 'console.log',
       quote: useSingleQuotes ? "'" : '"',
-      logMessagePrefix,
+      logMessagePrefix: accessiblePrefix,
       messageLogDelimiter: messageLogDelimiter
         ? ` ${messageLogDelimiter} `
         : '',
@@ -458,7 +508,7 @@ export class LogService {
     addEmptyAfter: boolean,
   ): string {
     if (isWrapped) {
-      const border = `${indent}${logCommand}(${quote}${logMessagePrefix}${messageLogDelimiter}----------------------------${messageLogDelimiter}${quote});`;
+      const border = `${indent}${logCommand}(${quote}${logMessagePrefix}${messageLogDelimiter}${'-'.repeat(25)}${messageLogDelimiter}${quote});`;
       content = `${border}\n${content}\n${border}`;
     }
 
@@ -471,23 +521,6 @@ export class LogService {
     }
 
     return content;
-  }
-
-  /**
-   * The escapeRegExp method.
-   * Escape the regular expression special characters.
-   * @function escapeRegExp
-   * @private
-   * @memberof LogService
-   * @example
-   * this.escapeRegExp(str);
-   *
-   * @param {string} str - The string to escape
-   *
-   * @returns {string} The escaped string.
-   */
-  private escapeRegExp(str: string): string {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   /**

@@ -109,6 +109,19 @@ export const DEFAULT_LOG_MESSAGE_WRAPPED_SETTING: boolean = false;
 export const DEFAULT_LOG_MESSAGE_PREFIX: string = '🔍';
 
 /**
+ * DEFAULT_USE_ACCESSIBLE_LOGS_SETTING: The default value for the accessibility setting.
+ * When true, uses text-based alternatives instead of emojis for better screen reader compatibility.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_USE_ACCESSIBLE_LOGS_SETTING);
+ *
+ * @returns {boolean} - The default value for the accessibility setting
+ */
+export const DEFAULT_USE_ACCESSIBLE_LOGS_SETTING: boolean = false;
+
+/**
  * DEFAULT_MESSAGE_LOG_DELIMITER: The default value for the message log delimiter.
  * @type {string}
  * @public
@@ -142,7 +155,7 @@ export const DEFAULT_MESSAGE_LOG_SUFFIX: string = ':';
  *
  * @returns {boolean} - The default value for the semicolon required setting
  */
-export const DEFAULT_SEMICOLON_REQUIRED_SETTING: boolean = false;
+export const DEFAULT_SEMICOLON_REQUIRED_SETTING: boolean = true;
 
 /**
  * DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING: The default value for the add empty line before log message setting.
@@ -234,13 +247,92 @@ export const DEFAULT_HIGHLIGHT_STYLE_SETTING:
   | 'wavy' = 'wavy';
 
 /**
- * DEFAULT_CUSTOM_LOG_TEMPLATES: The default value for the custom log templates setting.
- * @type {string[]}
+ * DEFAULT_CUSTOM_LOG_TEMPLATES: The default value for the custom log templates.
+ * @type {LogTemplate[]}
  * @public
  * @memberof Constants
  * @example
  * console.log(DEFAULT_CUSTOM_LOG_TEMPLATES);
  *
- * @returns {string[]} - The default value for the custom log templates setting
+ * @returns {LogTemplate[]} - The default value for the custom log templates
  */
 export const DEFAULT_CUSTOM_LOG_TEMPLATES: LogTemplate[] = [];
+
+/**
+ * DEFAULT_INCLUDE_PATTERNS: The default file patterns to include in the extension's file operations.
+ * @type {string[]}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_INCLUDE_PATTERNS);
+ *
+ * @returns {string[]} - The default file patterns to include
+ */
+export const DEFAULT_INCLUDE_PATTERNS: string[] = ['**/*.{js,jsx,ts,tsx}'];
+
+/**
+ * DEFAULT_EXCLUDE_PATTERNS: The default file patterns to exclude from the extension's file operations.
+ * @type {string[]}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_EXCLUDE_PATTERNS);
+ *
+ * @returns {string[]} - The default file patterns to exclude
+ */
+export const DEFAULT_EXCLUDE_PATTERNS: string[] = [
+  '**/node_modules/**',
+  '**/dist/**',
+  '**/out/**',
+  '**/build/**',
+  '**/vendor/**',
+];
+
+/**
+ * DEFAULT_MAX_SEARCH_RECURSION_DEPTH: The default maximum recursion depth for file search operations.
+ * 0 means unlimited depth.
+ * @type {number}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_MAX_SEARCH_RECURSION_DEPTH);
+ *
+ * @returns {number} - The default maximum recursion depth for file search
+ */
+export const DEFAULT_MAX_SEARCH_RECURSION_DEPTH: number = 0;
+
+/**
+ * DEFAULT_SUPPORTS_HIDDEN_FILES: The default value for whether to include hidden files in search operations.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_SUPPORTS_HIDDEN_FILES);
+ *
+ * @returns {boolean} - The default value for including hidden files in search
+ */
+export const DEFAULT_SUPPORTS_HIDDEN_FILES: boolean = true;
+
+/**
+ * DEFAULT_PRESERVE_GITIGNORE_SETTINGS: The default value for whether to respect .gitignore settings during file search.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_PRESERVE_GITIGNORE_SETTINGS);
+ *
+ * @returns {boolean} - The default value for respecting .gitignore settings
+ */
+export const DEFAULT_PRESERVE_GITIGNORE_SETTINGS: boolean = false;
+
+/**
+ * IS_INCLUDE_FILE_PATH_DEFAULT: The default value for whether to show the file path in search results.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(IS_INCLUDE_FILE_PATH_DEFAULT);
+ *
+ * @returns {boolean} - The default value for showing file paths in search results
+ */
+export const IS_INCLUDE_FILE_PATH_DEFAULT: boolean = true;

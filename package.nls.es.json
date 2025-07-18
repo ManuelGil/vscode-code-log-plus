@@ -4,6 +4,7 @@
 	"codeLogPlus.logCommand.description": "El comando utilizado para registrar mensajes",
 	"codeLogPlus.isLogMessageWrapped.description": "Determinar si envolver el mensaje de registro con formato adicional o marcadores",
 	"codeLogPlus.logMessagePrefix.description": "Prefijo añadido al principio del mensaje de registro",
+	"codeLogPlus.useAccessibleLogs.description": "Utilizar registros accesibles. Si es verdadero, la extensión generará registros más accesibles para lectores de pantalla y otras tecnologías de asistencia",
 	"codeLogPlus.messageLogDelimiter.description": "Delimitador para separar diferentes elementos dentro del mensaje de registro (por ejemplo, nombre de archivo, número de línea, clase, función, variable)",
 	"codeLogPlus.messageLogSuffix.description": "Sufijo añadido al final del mensaje de registro",
 	"codeLogPlus.isSemicolonRequired.description": "Añadir un punto y coma al final de la declaración de registro si es requerido por el lenguaje de programación",
@@ -17,11 +18,19 @@
 	"codeLogPlus.customLogTemplates.language.description": "El lenguaje de programación al que se aplica esta plantilla (por ejemplo, 'javascript', 'python', 'dart')",
 	"codeLogPlus.customLogTemplates.template.description": "La plantilla del mensaje de registro. Utilice variables como {{{logCommand}}}, {{{logMessagePrefix}}}, {{{variableName}}}, etc. Ejemplo: \"{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}} {{{fileName}}}:{{{lineNumber}}} → {{{variableName}}}{{{quote}}})\"",
 	"codeLogPlus.customLogTemplates.description": "Plantillas de mensajes de registro personalizadas para diferentes lenguajes. Puede definir una plantilla por lenguaje utilizando variables disponibles (por ejemplo, {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}})",
+	"codeLogPlus.files.excludedFilePatterns.description": "Patrones de archivos excluidos de la búsqueda de registros. Por ejemplo, ['**/node_modules/**', '**/vendor/**']",
+	"codeLogPlus.files.maxSearchRecursionDepth.description": "Profundidad máxima de recursión para buscar archivos. Un valor de 0 significa sin límite",
+	"codeLogPlus.files.supportsHiddenFiles.description": "Si la extensión admite archivos ocultos. Si es verdadero, los archivos ocultos serán incluidos en la búsqueda de registros",
+	"codeLogPlus.files.preserveGitignoreSettings.description": "Si la extensión debe respetar las configuraciones de .gitignore. Si es verdadero, los archivos ignorados por Git no serán incluidos en la búsqueda de registros",
+	"codeLogPlus.files.includeFilePath.description": "Incluir la ruta del archivo en los resultados de búsqueda de registros. Si es verdadero, la ruta completa del archivo será mostrada en los resultados",
 	"codeLogPlus.insertLog.title": "Insertar registro",
 	"codeLogPlus.editLogs.title": "Editar registros",
 	"codeLogPlus.removeLogs.title": "Eliminar registros",
 	"codeLogPlus.highlightLogs.title": "Resaltar registros",
 	"codeLogPlus.clearHighlights.title": "Limpiar resaltados",
 	"codeLogPlus.commentLogs.title": "Comentar registros",
-	"codeLogPlus.uncommentLogs.title": "Descomentar registros"
+	"codeLogPlus.uncommentLogs.title": "Descomentar registros",
+	"codeLogPlus.listLogView.title": "Declaraciones de Registro",
+	"codeLogPlus.listLogView.refreshList.title": "Actualizar lista de registros",
+	"codeLogPlus.listLogView.welcomeMessage": "Para capturar archivos de manera efectiva, asegúrese de incluir el tipo de archivo dentro de la configuración del espacio de trabajo.\n[Abrir configuración del espacio de trabajo](command:workbench.action.openWorkspaceSettingsFile)\nPara aprender más sobre cómo usar el Starter Kit [lea nuestra documentación](https://github.com/ManuelGil/vscode-code-log-plus)."
 }

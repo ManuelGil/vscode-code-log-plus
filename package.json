@@ -2,7 +2,7 @@
 	"name": "vscode-code-log-plus",
 	"displayName": "CodeLog+",
 	"description": "CodeLog+ is a Visual Studio Code extension that helps you insert, remove, highlight, comment, and uncomment log statements in your code.",
-	"version": "1.6.0",
+	"version": "1.7.0",
 	"icon": "icon.png",
 	"license": "MIT",
 	"publisher": "imgildev",
@@ -168,6 +168,12 @@
 					"scope": "resource",
 					"description": "%codeLogPlus.logMessagePrefix.description%"
 				},
+				"codeLogPlus.useAccessibleLogs": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.useAccessibleLogs.description%"
+				},
 				"codeLogPlus.messageLogDelimiter": {
 					"type": "string",
 					"default": "~",
@@ -182,7 +188,7 @@
 				},
 				"codeLogPlus.isSemicolonRequired": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"scope": "resource",
 					"description": "%codeLogPlus.isSemicolonRequired.description%"
 				},
@@ -288,6 +294,50 @@
 					"default": [],
 					"scope": "resource",
 					"description": "%codeLogPlus.customLogTemplates.description%"
+				},
+				"codeLogPlus.files.includedFilePatterns": {
+					"type": "array",
+					"default": [
+						"**/*.{js,jsx,ts,tsx}"
+					],
+					"scope": "resource",
+					"description": "%codeLogPlus.files.includedFilePatterns.description%"
+				},
+				"codeLogPlus.files.excludedFilePatterns": {
+					"type": "array",
+					"default": [
+						"**/node_modules/**",
+						"**/dist/**",
+						"**/out/**",
+						"**/build/**",
+						"**/vendor/**"
+					],
+					"scope": "resource",
+					"description": "%codeLogPlus.files.excludedFilePatterns.description%"
+				},
+				"codeLogPlus.files.maxSearchRecursionDepth": {
+					"type": "number",
+					"default": 0,
+					"scope": "resource",
+					"description": "%codeLogPlus.files.maxSearchRecursionDepth.description%"
+				},
+				"codeLogPlus.files.supportsHiddenFiles": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%codeLogPlus.files.supportsHiddenFiles.description%"
+				},
+				"codeLogPlus.files.preserveGitignoreSettings": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%codeLogPlus.files.preserveGitignoreSettings.description%"
+				},
+				"codeLogPlus.files.includeFilePath": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%codeLogPlus.files.includeFilePath.description%"
 				}
 			}
 		},
@@ -326,6 +376,12 @@
 				"command": "codeLogPlus.uncommentLogs",
 				"title": "%codeLogPlus.uncommentLogs.title%",
 				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.listLogView.refreshList",
+				"title": "%codeLogPlus.listLogView.refreshList.title%",
+				"category": "codeLog+",
+				"icon": "$(refresh)"
 			}
 		],
 		"keybindings": [
@@ -409,6 +465,29 @@
 					"group": "1_modification",
 					"when": "editorTextFocus"
 				}
+			],
+			"view/title": [
+				{
+					"command": "codeLogPlus.listLogView.refreshList",
+					"when": "view == codeLogPlus.listLogView",
+					"group": "navigation"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "codeLogPlus.listLogView",
+				"contents": "%codeLogPlus.listLogView.welcomeMessage%"
+			}
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "codeLogPlus.listLogView",
+					"name": "%codeLogPlus.listLogView.title%",
+					"visibility": "visible",
+					"icon": "$(list-tree)"
+				}
 			]
 		},
 		"jsonValidation": [
@@ -432,25 +511,28 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@commitlint/cli": "^19.6.0",
-		"@commitlint/config-conventional": "^19.6.0",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
 		"@compodoc/compodoc": "^1.1.26",
 		"@types/mocha": "^10.0.10",
 		"@types/mustache": "^4.2.5",
-		"@types/node": "^22.10.0",
+		"@types/node": "^22.16.4",
 		"@types/vscode": "^1.88.0",
 		"@vscode/l10n-dev": "^0.0.35",
 		"@vscode/test-cli": "^0.0.10",
-		"@vscode/test-electron": "^2.4.1",
+		"@vscode/test-electron": "^2.5.2",
 		"husky": "^9.1.7",
-		"lint-staged": "^15.2.10",
+		"lint-staged": "^15.5.2",
 		"mocha": "^10.8.2",
 		"rimraf": "^6.0.1",
-		"typescript": "^5.7.2",
+		"typescript": "^5.8.3",
 		"vscode-test": "^1.6.1"
 	},
 	"dependencies": {
+		"fast-glob": "^3.3.3",
+		"ignore": "^7.0.5",
 		"mustache": "^4.2.0",
-		"vscode-marketplace-client": "^1.0.0"
+		"p-limit": "^6.2.0",
+		"vscode-marketplace-client": "^1.1.0"
 	}
 }
