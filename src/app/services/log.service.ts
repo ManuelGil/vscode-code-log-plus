@@ -19,6 +19,13 @@ import { escapeRegExp } from '../helpers';
  *  cpp: 'std::cout',
  *  ruby: 'puts',
  *  go: 'fmt.Println',
+ *  kotlin: 'println',
+ *  swift: 'print',
+ *  scala: 'println',
+ *  lua: 'print',
+ *  perl: 'print',
+ *  elixir: 'IO.puts',
+ *  haskell: 'putStrLn',
  * };
  */
 interface LogCommandMap {
@@ -74,6 +81,13 @@ export class LogService {
     'cpp',
     'ruby',
     'go',
+    'kotlin',
+    'swift',
+    'scala',
+    'lua',
+    'perl',
+    'elixir',
+    'haskell',
   ];
 
   /**
@@ -95,6 +109,13 @@ export class LogService {
     cpp: 'std::cout',
     ruby: 'puts',
     go: 'fmt.Println',
+    kotlin: 'println',
+    swift: 'print',
+    scala: 'println',
+    lua: 'print',
+    perl: 'print',
+    elixir: 'IO.puts',
+    haskell: 'putStrLn',
   };
 
   /**
@@ -157,6 +178,41 @@ export class LogService {
       template:
         '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}}, {{{variableName}}})\n',
     },
+    {
+      language: 'kotlin',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}})\n',
+    },
+    {
+      language: 'swift',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}\\({{{variableName}}}){{{messageLogSuffix}}}{{{quote}}})\n',
+    },
+    {
+      language: 'scala',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}})\n',
+    },
+    {
+      language: 'lua',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} .. {{{variableName}}})\n',
+    },
+    {
+      language: 'perl',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}${{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} . ${{{variableName}}});\n',
+    },
+    {
+      language: 'elixir',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}#{{{literalOpen}}}{{{variableName}}}{{{literalClose}}}{{{messageLogSuffix}}}{{{quote}}})\n',
+    },
+    {
+      language: 'haskell',
+      template:
+        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} ++ show {{{variableName}}})\n',
+    },
   ];
 
   // -----------------------------------------------------------------
@@ -212,6 +268,8 @@ export class LogService {
     const {
       defaultLanguage,
       isLogMessageWrapped,
+      borderWrapCharacter,
+      borderWrapLength,
       addEmptyLineBeforeLogMessage,
       addEmptyLineAfterLog,
     } = this.config;
@@ -249,6 +307,8 @@ export class LogService {
       renderContext.logMessagePrefix,
       renderContext.messageLogDelimiter,
       isLogMessageWrapped,
+      borderWrapCharacter,
+      borderWrapLength,
       addEmptyLineBeforeLogMessage,
       addEmptyLineAfterLog,
     );
@@ -504,12 +564,14 @@ export class LogService {
     logMessagePrefix: string,
     messageLogDelimiter: string,
     isWrapped: boolean,
+    borderCharacter: string,
+    borderLength: number,
     addEmptyBefore: boolean,
     addEmptyAfter: boolean,
   ): string {
     if (isWrapped) {
-      const border = `${indent}${logCommand}(${quote}${logMessagePrefix}${messageLogDelimiter}${'-'.repeat(25)}${messageLogDelimiter}${quote});`;
-      content = `${border}\n${content}\n${border}`;
+      const border = `${indent}${logCommand}(${quote}${logMessagePrefix}${messageLogDelimiter}${borderCharacter.repeat(borderLength)}${messageLogDelimiter}${quote});`;
+      content = `${border}\n${content}${border}\n`;
     }
 
     if (addEmptyBefore) {

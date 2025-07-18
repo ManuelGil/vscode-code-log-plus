@@ -92,6 +92,30 @@ export class ExtensionConfig {
   isLogMessageWrapped: boolean;
 
   /**
+   * Character to be used for drawing the border in log wraps.
+   * For example, an underscore (_) or an asterisk (*).
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * console.log(config.borderWrapCharacter);
+   * @default "-"
+   */
+  borderWrapCharacter: string;
+
+  /**
+   * Number of times the border character will be repeated to create a border line.
+   * For example, 20 to create a 20-character line.
+   * @type {number}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * console.log(config.borderWrapLength);
+   * @default 20
+   */
+  borderWrapLength: number;
+
+  /**
    * Prefix added at the beginning of the log message.
    * @type {string}
    * @public
@@ -298,6 +322,10 @@ export class ExtensionConfig {
       'isLogMessageWrapped',
       DEFAULT_LOG_MESSAGE_WRAPPED_SETTING,
     );
+    // Character used to draw the border in log wraps.
+    this.borderWrapCharacter = config.get<string>('borderWrapCharacter', '-');
+    // Number of times the border character is repeated to create a border line.
+    this.borderWrapLength = config.get<number>('borderWrapLength', 20);
     // Prefix added at the beginning of the log message.
     this.logMessagePrefix = config.get<string>(
       'logMessagePrefix',
@@ -424,6 +452,16 @@ export class ExtensionConfig {
     this.isLogMessageWrapped = config.get<boolean>(
       'isLogMessageWrapped',
       this.isLogMessageWrapped,
+    );
+    // Character used to draw the border in log wraps.
+    this.borderWrapCharacter = config.get<string>(
+      'borderWrapCharacter',
+      this.borderWrapCharacter,
+    );
+    // Number of times the border character is repeated to create a border line.
+    this.borderWrapLength = config.get<number>(
+      'borderWrapLength',
+      this.borderWrapLength,
     );
     // Prefix added at the beginning of the log message.
     this.logMessagePrefix = config.get<string>(

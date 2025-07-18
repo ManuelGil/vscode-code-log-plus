@@ -21,7 +21,14 @@
 				"python",
 				"cpp",
 				"ruby",
-				"go"
+				"go",
+				"kotlin",
+				"swift",
+				"scala",
+				"lua",
+				"perl",
+				"elixir",
+				"haskell"
 			],
 			"enumDescriptions": [
 				"JavaScript",
@@ -33,7 +40,14 @@
 				"Python",
 				"C++",
 				"Ruby",
-				"Go"
+				"Go",
+				"Kotlin",
+				"Swift",
+				"Scala",
+				"Lua",
+				"Perl",
+				"Elixir",
+				"Haskell"
 			],
 			"scope": "resource",
 			"description": "Default language to be used for logging."
@@ -49,6 +63,18 @@
 			"default": false,
 			"scope": "resource",
 			"description": "Determine whether to wrap the log message with additional formatting or markers."
+		},
+		"codeLogPlus.borderWrapCharacter": {
+			"type": "string",
+			"default": "-",
+			"scope": "resource",
+			"description": "Character to be used for drawing the border in log wraps. For example, an underscore (_) or an asterisk (*)"
+		},
+		"codeLogPlus.borderWrapLength": {
+			"type": "number",
+			"default": 20,
+			"scope": "resource",
+			"description": "Number of times the border character will be repeated to create a border line. For example, 20 to create a 20-character line."
 		},
 		"codeLogPlus.logMessagePrefix": {
 			"type": "string",
@@ -147,7 +173,14 @@
 							"python",
 							"cpp",
 							"ruby",
-							"go"
+							"go",
+							"kotlin",
+							"swift",
+							"scala",
+							"lua",
+							"perl",
+							"elixir",
+							"haskell"
 						],
 						"enumDescriptions": [
 							"JavaScript",
@@ -159,7 +192,14 @@
 							"Python",
 							"C++",
 							"Ruby",
-							"Go"
+							"Go",
+							"Kotlin",
+							"Swift",
+							"Scala",
+							"Lua",
+							"Perl",
+							"Elixir",
+							"Haskell"
 						],
 						"description": "The programming language for which this template applies (e.g., 'javascript', 'python', 'dart')."
 					},

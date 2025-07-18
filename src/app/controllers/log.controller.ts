@@ -362,7 +362,7 @@ export class LogController {
       return;
     }
 
-    const commentToken = this.getCommentToken(document);
+    const commentToken = this.getCommentToken(languageId);
 
     // Show progress indicator while commenting logs
     await window.withProgress(
@@ -421,7 +421,7 @@ export class LogController {
       async () => {
         const resolvedCommand = this.service.getLogCommand(languageId);
         const escapedCommand = escapeRegExp(resolvedCommand);
-        const commentToken = this.getCommentToken(document);
+        const commentToken = this.getCommentToken(languageId);
 
         const commentPattern = new RegExp(
           `(^\\s*)(${escapeRegExp(commentToken)})(\\s*)(${escapedCommand})(\\s*\\()`,
@@ -589,30 +589,42 @@ export class LogController {
 
   /**
    * The getCommentToken method.
-   * Get the comment token based on the language of the document.
+   * Get the comment token based on the language ID.
    * @function getCommentToken
    * @private
-   * @param {TextDocument} document - The text document
+   * @param {string} languageId - The language ID of the document
    * @memberof LogController
    * @example
    * this.getCommentToken(document);
    * @returns {string} - The comment token
    */
-  private getCommentToken(document: TextDocument): string {
-    const lang = document.languageId;
-    switch (lang) {
+  private getCommentToken(languageId: string): string {
+    switch (languageId) {
       case 'javascript':
       case 'typescript':
       case 'java':
       case 'csharp':
       case 'cpp':
       case 'go':
+      case 'php':
+      case 'dart':
+      case 'kotlin':
+      case 'swift':
+      case 'scala':
         return '// ';
+
       case 'python':
       case 'ruby':
+      case 'perl':
+      case 'r':
+      case 'elixir':
+      case 'shellscript':
         return '# ';
-      case 'php':
-        return '// ';
+
+      case 'lua':
+      case 'haskell':
+        return '-- ';
+
       default:
         return '// ';
     }

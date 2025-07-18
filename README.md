@@ -69,7 +69,7 @@ CodeLog+ accelerates debugging by providing:
 
 ## Features
 
-- **Multi-language support** - Works with JavaScript, TypeScript, Java, C#, PHP, Dart, Python, C++, Ruby, and Go.
+- **Multi-language support** - Works with JavaScript, TypeScript, Java, C#, PHP, Dart, Python, C++, Ruby, Go, Kotlin, Swift, Scala, Lua, Perl, Elixir, Haskell, and more.
 - **Customizable log templates** - Define your own log message format.
 - **Automatic file & line detection** - Inserts file name and line number dynamically.
 - **Quick insert with shortcuts** - Add log statements with minimal effort.
@@ -211,6 +211,8 @@ CodeLog+ provides various configuration options to customize logging behavior in
 | `codeLogPlus.defaultLanguage`                 | string  | `javascript`                                                                       | Default language for log statements.                                                        |
 | `codeLogPlus.logCommand`                      | string  | `console.log`                                                                      | The command used for logging.                                                               |
 | `codeLogPlus.isLogMessageWrapped`             | boolean | `false`                                                                            | Determines whether log messages should be wrapped.                                          |
+| `codeLogPlus.borderWrapCharacter`             | string  | `"-"`                                                                              | Character used to draw the border in log wraps.                                             |
+| `codeLogPlus.borderWrapLength`                | number  | `20`                                                                               | Number of times the border character is repeated to create a border line.                  |
 | `codeLogPlus.logMessagePrefix`                | string  | `🔍`                                                                                | Prefix for log messages.                                                                    |
 | `codeLogPlus.useAccessibleLogs`               | boolean | `false`                                                                            | Replaces emoji prefixes with text alternatives for accessibility (e.g., 🔍 becomes [DEBUG]). |
 | `codeLogPlus.messageLogDelimiter`             | string  | `~`                                                                                | Delimiter for log messages.                                                                 |
@@ -245,6 +247,13 @@ CodeLog+ supports multiple programming languages for log generation:
 - **C++ (`cpp`)**
 - **Ruby (`ruby`)**
 - **Go (`go`)**
+- **Kotlin (`kotlin`)**
+- **Swift (`swift`)**
+- **Scala (`scala`)**
+- **Lua (`lua`)**
+- **Perl (`perl`)**
+- **Elixir (`elixir`)**
+- **Haskell (`haskell`)**
 
 ### Custom Log Templates
 

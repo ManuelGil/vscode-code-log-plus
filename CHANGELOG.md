@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2025-07-18
+
+### Added
+
+- Add support for additional programming languages in log statements, including Kotlin, Swift, Scala, Lua, Perl, Elixir, and Haskell.
+- Add border wrapping options for log messages, allowing customization of the border character and length.
+
 ## [1.7.0] - 2025-07-17
 
 ### Added
@@ -99,7 +106,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.5.0...v1.5.1
