@@ -18,40 +18,17 @@ import { EXTENSION_ID, ExtensionConfig } from '../configs';
 import { NodeModel } from '../models';
 
 /**
- * ListLogController is responsible for managing the list of log files in the workspace.
+ * Manages the list of log files in the workspace.
  * It provides methods to retrieve files, open them, and navigate to specific lines.
- * This controller interacts with the workspace and uses the LogService for log operations.
- *
- * @class ListLogController
  */
 export class ListLogController {
-  // -----------------------------------------------------------------
-  // Properties
-  // -----------------------------------------------------------------
-
-  // Public properties
-  /**
-   * The static config property.
-   *
-   * @static
-   * @property
-   * @public
-   * @type {ExtensionConfig}
-   * @memberof ListLogController
-   */
-  static config: ExtensionConfig;
-
   // -----------------------------------------------------------------
   // Constructor
   // -----------------------------------------------------------------
 
   /**
-   * Constructor for the ListLogController class
-   *
-   * @constructor
-   * @param {ExtensionConfig} config - The configuration object
-   * @public
-   * @memberof ListLogController
+   * Constructor for the ListLogController class.
+   * @param {ExtensionConfig} config - The configuration object.
    */
   constructor(readonly config: ExtensionConfig) {}
 
@@ -62,8 +39,8 @@ export class ListLogController {
   // Public methods
   /**
    * Returns a list of files in the workspace as plain file objects.
-   * Shows an error message if no workspace is open or operation is cancelled.
-   * @returns Promise resolving to an array of file info objects or void if cancelled.
+   * Shows an error message if no workspace is open or the operation is cancelled.
+   * @returns {Promise<NodeModel[] | void>} A promise that resolves to an array of file info objects or void if cancelled.
    */
   async getFiles(): Promise<NodeModel[] | void> {
     // Get the files in the folder
@@ -84,7 +61,7 @@ export class ListLogController {
       maxSearchRecursionDepth,
       supportsHiddenFiles,
       preserveGitignoreSettings,
-      includeFilePath,
+      showFilePathInResults,
     } = this.config;
 
     const fileExtensionPattern = Array.isArray(includedFilePatterns)
@@ -117,7 +94,7 @@ export class ListLogController {
         const path = workspace.asRelativePath(file.fsPath);
         let filename = path.split('/').pop();
 
-        if (filename && includeFilePath) {
+        if (filename && showFilePathInResults) {
           const folder = path.split('/').slice(0, -1).join('/');
 
           filename += folder ? ` (${folder})` : ' (root)';
@@ -146,7 +123,7 @@ export class ListLogController {
 
   /**
    * Opens the specified file in the VSCode editor.
-   * @param uri File Uri to open.
+   * @param {Uri} uri - File Uri to open.
    */
   openFile(uri: Uri) {
     workspace.openTextDocument(uri).then((filename) => {
@@ -156,8 +133,8 @@ export class ListLogController {
 
   /**
    * Opens the specified file and moves the cursor to the given line.
-   * @param uri File Uri to open.
-   * @param line Line number to navigate to.
+   * @param {Uri} uri - File Uri to open.
+   * @param {number} line - Line number to navigate to.
    */
   gotoLine(uri: Uri, line: number) {
     workspace.openTextDocument(uri).then((document) => {
@@ -173,23 +150,16 @@ export class ListLogController {
   }
 
   /**
-   * Searches for files in a directory matching specified patterns with optimized performance
-   *
-   * @param {string} baseDir - Absolute path to the base directory to search in
-   * @param {string[]} includeFilePatterns - Glob patterns for files to include (e.g. ['**\/*.ts'])
-   * @param {string[]} excludedPatterns - Glob patterns for files or directories to exclude
-   * @param {boolean} disableRecursive - When true, limits search to the immediate directory
-   * @param {number} deep - Maximum depth for recursive search (0 = unlimited)
-   * @param {boolean} includeDotfiles - When true, includes files and directories starting with a dot
-   * @param {boolean} enableGitignoreDetection - When true, respects rules in .gitignore files
-   * @returns {Promise<Uri[]>} Array of VS Code Uri objects for matched files
-   * @throws {Error} If the directory access fails or pattern matching encounters errors
-   * @private
-   * @async
-   * @memberof FilesController
-   * @example
-   * // Example usage:
-   * // const tsFiles = await this.findFiles('/path/to/dir', ['**\/*.ts'], ['**\/node_modules/**']);
+   * Searches for files in a directory matching specified patterns with optimized performance.
+   * @param {string} baseDir - Absolute path to the base directory to search in.
+   * @param {string[]} includeFilePatterns - Glob patterns for files to include (e.g. ['**\/*.ts']).
+   * @param {string[]} excludedPatterns - Glob patterns for files or directories to exclude.
+   * @param {boolean} disableRecursive - When true, limits search to the immediate directory.
+   * @param {number} deep - Maximum depth for recursive search (0 = unlimited).
+   * @param {boolean} includeDotfiles - When true, includes files and directories starting with a dot.
+   * @param {boolean} enableGitignoreDetection - When true, respects rules in .gitignore files.
+   * @returns {Promise<Uri[]>} Array of VS Code Uri objects for matched files.
+   * @example const tsFiles = await this.findFiles('/path/to/dir', ['**\/*.ts'], ['**\/node_modules/**']);
    */
   private async findFiles(
     baseDir: string,

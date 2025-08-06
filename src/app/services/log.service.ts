@@ -2,234 +2,24 @@ import * as mustache from 'mustache';
 
 import { ExtensionConfig } from '../configs';
 import { escapeRegExp } from '../helpers';
+import {
+  LogTemplate,
+  defaultLogCommand,
+  defaultTemplates,
+  supportedLanguages,
+} from '../types';
 
 /**
- * The LogCommandMap interface.
- * Represents the log command map.
- * @interface LogCommandMap
- * @example
- * const logCommandMap: LogCommandMap = {
- *  javascript: 'console.log',
- *  typescript: 'console.log',
- *  java: 'System.out.println',
- *  csharp: 'Console.WriteLine',
- *  php: 'echo',
- *  dart: 'print',
- *  python: 'print',
- *  cpp: 'std::cout',
- *  ruby: 'puts',
- *  go: 'fmt.Println',
- *  kotlin: 'println',
- *  swift: 'print',
- *  scala: 'println',
- *  lua: 'print',
- *  perl: 'print',
- *  elixir: 'IO.puts',
- *  haskell: 'putStrLn',
- * };
- */
-interface LogCommandMap {
-  [language: string]: string;
-}
-
-/**
- * The LogTemplate interface.
- * Represents the log template.
- * @interface LogTemplate
- * @example
- * const logTemplate: LogTemplate = {
- *  language: 'javascript',
- *  template: '{{{indent}}}{{{logCommand}}}({{{variableName}}});',
- * };
- */
-interface LogTemplate {
-  language: string;
-  template: string;
-}
-
-/**
- * The LogService class.
- *
- * @class
- * @classdesc The class that represents the log service.
- * @export
- * @public
- * @example
- * const logService = new LogService(config);
+ * Service for handling log generation and parsing logic.
  */
 export class LogService {
-  // -----------------------------------------------------------------
-  // Properties
-  // -----------------------------------------------------------------
-
-  /**
-   * The supported languages for the log snippets.
-   * @private
-   * @type {string[]}
-   * @memberof LogController
-   * @example
-   * this.supportedLanguages;
-   */
-  private readonly supportedLanguages: string[] = [
-    'javascript',
-    'typescript',
-    'java',
-    'csharp',
-    'php',
-    'dart',
-    'python',
-    'cpp',
-    'ruby',
-    'go',
-    'kotlin',
-    'swift',
-    'scala',
-    'lua',
-    'perl',
-    'elixir',
-    'haskell',
-  ];
-
-  /**
-   * The default log command for the log snippets.
-   * @private
-   * @type {Array<{ language: string; command: string }>}
-   * @memberof LogController
-   * @example
-   * this.defaultLogCommand;
-   */
-  private defaultLogCommand: LogCommandMap = {
-    javascript: 'console.log',
-    typescript: 'console.log',
-    java: 'System.out.println',
-    csharp: 'Console.WriteLine',
-    php: 'echo',
-    dart: 'print',
-    python: 'print',
-    cpp: 'std::cout',
-    ruby: 'puts',
-    go: 'fmt.Println',
-    kotlin: 'println',
-    swift: 'print',
-    scala: 'println',
-    lua: 'print',
-    perl: 'print',
-    elixir: 'IO.puts',
-    haskell: 'putStrLn',
-  };
-
-  /**
-   * The default templates for the log snippets.
-   *
-   * @private
-   * @type {Array<{ language: string; template: string }>}
-   * @memberof LogController
-   * @example
-   * this.defaultTemplates;
-   */
-  private defaultTemplates: LogTemplate[] = [
-    {
-      language: 'javascript',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}}, {{{variableName}}});\n',
-    },
-    {
-      language: 'typescript',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}}, {{{variableName}}});\n',
-    },
-    {
-      language: 'java',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}});\n',
-    },
-    {
-      language: 'csharp',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}});\n',
-    },
-    {
-      language: 'php',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} . {{{variableName}}});\n',
-    },
-    {
-      language: 'dart',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}});\n',
-    },
-    {
-      language: 'python',
-      template:
-        '{{{indent}}}{{{logCommand}}}(f{{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{literalOpen}}}{{{variableName}}}{{{literalClose}}}{{{messageLogSuffix}}}{{{quote}}});\n',
-    },
-    {
-      language: 'cpp',
-      template:
-        '{{{indent}}}{{{logCommand}}} << {{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} << {{{variableName}}} << std::endl;\n',
-    },
-    {
-      language: 'ruby',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}#{{{literalOpen}}}{{{variableName}}}{{{literalClose}}}{{{messageLogSuffix}}}{{{quote}}});\n',
-    },
-    {
-      language: 'go',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}}, {{{variableName}}})\n',
-    },
-    {
-      language: 'kotlin',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}})\n',
-    },
-    {
-      language: 'swift',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}\\({{{variableName}}}){{{messageLogSuffix}}}{{{quote}}})\n',
-    },
-    {
-      language: 'scala',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} + {{{variableName}}})\n',
-    },
-    {
-      language: 'lua',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} .. {{{variableName}}})\n',
-    },
-    {
-      language: 'perl',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}${{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} . ${{{variableName}}});\n',
-    },
-    {
-      language: 'elixir',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}#{{{literalOpen}}}{{{variableName}}}{{{literalClose}}}{{{messageLogSuffix}}}{{{quote}}})\n',
-    },
-    {
-      language: 'haskell',
-      template:
-        '{{{indent}}}{{{logCommand}}}({{{quote}}}{{{logMessagePrefix}}}{{{messageLogDelimiter}}}{{{functionName}}}{{{messageLogDelimiter}}}{{{fileName}}}:{{{lineNumber}}}{{{messageLogDelimiter}}}{{{variableName}}}{{{messageLogSuffix}}}{{{quote}}} ++ show {{{variableName}}})\n',
-    },
-  ];
-
   // -----------------------------------------------------------------
   // Constructor
   // -----------------------------------------------------------------
 
   /**
-   * Constructor for the LogService class
-   *
-   * @constructor
-   * @param {ExtensionConfig} config - The configuration object
-   * @public
-   * @memberof LogService
-   * @example
-   * this.logService = new LogService(config);
-   *
-   * @returns {LogService} - The log service
+   * Creates an instance of LogService.
+   * @param config - The extension's configuration.
    */
   constructor(readonly config: ExtensionConfig) {}
 
@@ -240,22 +30,14 @@ export class LogService {
   // Public methods
 
   /**
-   * The generateLogSnippet method.
-   * Generate a log snippet for the specified file and variable.
-   * @function generateLogSnippet
-   * @public
-   * @memberof LogService
-   * @example
-   * this.logService.generateLogSnippet(indent, fileName, variableName, lineNumber);
-   *
-   * @param {string} indent - The indentation string.
-   * @param {string} fileName - The name (or relative path) of the file.
-   * @param {string} functionName - The name of the function.
-   * @param {string} variableName - The name of the variable.
-   * @param {number} lineNumber - The line number.
-   * @param {string} languageId - The language identifier from the document.
-   *
-   * @returns {string} The generated log snippet.
+   * Generates a log snippet based on a template and context.
+   * @param indent - The indentation string for the log.
+   * @param fileName - The name of the file where the log is being inserted.
+   * @param functionName - The name of the containing function.
+   * @param variableName - The name of the variable to log.
+   * @param lineNumber - The line number for the log.
+   * @param languageId - The language identifier of the document.
+   * @returns The formatted log snippet.
    */
   generateLogSnippet(
     indent: string,
@@ -275,7 +57,7 @@ export class LogService {
     } = this.config;
 
     // Determine effective language: if not supported, use default from config.
-    const language = this.supportedLanguages.includes(languageId)
+    const language = supportedLanguages.includes(languageId)
       ? languageId
       : defaultLanguage;
 
@@ -322,17 +104,10 @@ export class LogService {
   }
 
   /**
-   * The findLogEntries method.
-   * Find the log ranges in the specified code.
-   * @function findLogEntries
-   * @public
-   * @memberof LogService
-   * @example
-   * this.logService.findLogEntries(code);
-   *
-   * @param {string} code - The code to search for logs
-   *
-   * @returns {Array<{ start: number; end: number; line: number; preview: string; fullText: string }>} An array of log entry objects.
+   * Finds all log entries in the given code for a specific language.
+   * @param code - The source code to search within.
+   * @param languageId - The language identifier to determine the log command.
+   * @returns An array of log entry objects.
    */
   findLogEntries(
     code: string,
@@ -372,45 +147,23 @@ export class LogService {
   }
 
   /**
-   * The getLogCommand method.
-   * Get the log command for the specified language.
-   * @function getLogCommand
-   * @public
-   * @memberof LogService
-   * @example
-   * this.logService.getLogCommand(languageId);
-   *
-   * @param {string} languageId - The language identifier from the document.
-   *
-   * @returns {string} The log command for the specified language.
+   * Retrieves the log command for a given language.
+   * @param languageId - The language identifier.
+   * @returns The log command (e.g., 'console.log').
    */
   getLogCommand(languageId: string): string {
-    const { defaultLanguage, logCommand } = this.config;
-
-    const language = this.supportedLanguages.includes(languageId)
-      ? languageId
-      : defaultLanguage;
-
-    const defaultLogCmd =
-      this.defaultLogCommand[language as keyof typeof this.defaultLogCommand];
-
-    return logCommand || defaultLogCmd || 'console.log';
+    const { logCommand } = this.config;
+    return (
+      logCommand ||
+      defaultLogCommand[languageId] ||
+      defaultLogCommand.javascript
+    );
   }
 
-  // Private methods
-
   /**
-   * The getLogSnippetTemplate method.
-   * Get the log snippet template.
-   * @function getLogSnippetTemplate
-   * @private
-   * @memberof LogService
-   * @example
-   * this.getLogSnippetTemplate();
-   *
-   * @param {string} language - The language identifier.
-   *
-   * @returns {string | null} The template string, or null if not found.
+   * Gets the log snippet template for a given language.
+   * @param language - The language identifier.
+   * @returns The template string or null if not found.
    */
   private getLogSnippetTemplate(language: string): string | null {
     const { customLogTemplates } = this.config;
@@ -430,22 +183,9 @@ export class LogService {
   }
 
   /**
-   * The buildRenderContext method.
-   * Build the render context for the log snippet.
-   * @function buildRenderContext
-   * @private
-   * @memberof LogService
-   * @example
-   * this.buildRenderContext(params);
-   *
-   * @param {Object} params - The parameters object
-   * @param {string} params.indent - The indentation string
-   * @param {string} params.fileName - The name of the file
-   * @param {string} params.functionName - The name of the function
-   * @param {string} params.variableName - The name of the variable
-   * @param {number} params.lineNumber - The line number
-   *
-   * @returns {Object} The context object for Mustache rendering.
+   * Builds the context object used for rendering the Mustache template.
+   * @param params - The parameters needed to build the context.
+   * @returns The context object for template rendering.
    */
   private buildRenderContext(params: {
     indent: string;
@@ -479,10 +219,7 @@ export class LogService {
       useAccessibleLogs,
     } = this.config;
 
-    const defaultLogCmd =
-      this.defaultLogCommand[
-        params.language as keyof typeof this.defaultLogCommand
-      ];
+    const defaultLogCmd = defaultLogCommand[params.language];
 
     // Convert emoji prefixes to accessible alternatives when needed
     let accessiblePrefix = logMessagePrefix;
@@ -526,35 +263,8 @@ export class LogService {
   }
 
   /**
-   * The wrapContent method.
-   * Wrap the log content with the specified border.
-   * @function wrapContent
-   * @private
-   * @memberof LogService
-   * @example
-   * this.wrapContent(
-   *  content,
-   *  indent,
-   *  logCommand,
-   *  quote,
-   *  logMessagePrefix,
-   *  messageLogDelimiter,
-   *  isWrapped,
-   *  addEmptyBefore,
-   *  addEmptyAfter,
-   * );
-   *
-   * @param {string} content - The content to wrap.
-   * @param {string} indent - The indentation string.
-   * @param {string} logCommand - The log command.
-   * @param {string} quote - The quote character.
-   * @param {string} logMessagePrefix - The log message prefix.
-   * @param {string} messageLogDelimiter - The log message delimiter.
-   * @param {boolean} isWrapped - Whether to wrap the content.
-   * @param {boolean} addEmptyBefore - Whether to add an empty line before.
-   * @param {boolean} addEmptyAfter - Whether to add an empty line after.
-   *
-   * @returns {string} The wrapped content.
+   * Wraps the log content with a border and adds empty lines if configured.
+   * @returns The wrapped content string.
    */
   private wrapContent(
     content: string,
@@ -586,18 +296,10 @@ export class LogService {
   }
 
   /**
-   * The findClosingParenthesis method.
-   * Find the closing parenthesis in the code.
-   * @function findClosingParenthesis
-   * @private
-   * @memberof LogService
-   * @example
-   * this.findClosingParenthesis(code, startIndex);
-   *
-   * @param {string} code - The code to search.
-   * @param {number} startIndex - The index where the opening parenthesis was found.
-   *
-   * @returns {number} The index after the closing parenthesis.
+   * Finds the index of the closing parenthesis for a log statement.
+   * @param code - The source code to search.
+   * @param startIndex - The starting index of the opening parenthesis.
+   * @returns The index of the character after the closing parenthesis.
    */
   private findClosingParenthesis(code: string, startIndex: number): number {
     let openCount = 0;
@@ -615,18 +317,10 @@ export class LogService {
   }
 
   /**
-   * The getTemplateForLanguage method.
-   * Get the template for the specified language.
-   * @function getTemplateForLanguage
-   * @private
-   * @memberof LogService
-   * @example
-   * this.getTemplateForLanguage(language, customLogTemplates);
-   *
-   * @param {string} language - The effective language.
-   * @param {LogTemplate[]} customLogTemplates - Optional custom templates.
-   *
-   * @returns {LogTemplate | null} The log template, or null if not found.
+   * Retrieves the template for a given language, checking custom templates first.
+   * @param language - The language identifier.
+   * @param customLogTemplates - Optional array of custom log templates.
+   * @returns The matching log template or null.
    */
   private getTemplateForLanguage(
     language: string,
@@ -640,7 +334,7 @@ export class LogService {
         return custom;
       }
     }
-    const defaultTemplate = this.defaultTemplates.find(
+    const defaultTemplate = defaultTemplates.find(
       (template) => template.language === language,
     );
     return defaultTemplate || null;

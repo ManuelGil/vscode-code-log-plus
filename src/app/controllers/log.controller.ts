@@ -14,68 +14,35 @@ import {
 } from 'vscode';
 
 import { LogService } from '../services';
-import { escapeRegExp } from '../helpers';
+import { LogEntry } from '../types';
 
 /**
- * The LogController class.
- *
- * @class
- * @classdesc The class that represents the list files controller.
- * @export
- * @public
- * @property {LogService} service - The log service object
- * @example
- * const controller = new LogController(config);
+ * Controller for handling log-related commands.
  */
 export class LogController {
-  // -----------------------------------------------------------------
-  // Constructor
-  // -----------------------------------------------------------------
-
   /**
-   * Constructor for the LogController class
-   *
-   * @constructor
-   * @param {LogService} service - The log service object
-   * @public
-   * @memberof LogController
+   * Creates an instance of LogController.
+   * @param service - The log service for generating and finding logs.
    */
   constructor(readonly service: LogService) {}
 
-  // -----------------------------------------------------------------
-  // Methods
-  // -----------------------------------------------------------------
-
-  // Public methods
-
   /**
-   * The exportToActiveTextEditor method.
-   * Generate a file tree in the selected folder and insert it into the active editor.
-   * @function exportToActiveTextEditor
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.exportToActiveTextEditor(folderPath);
-   *
-   * @returns {Promise<void>} - The promise with no return value
+   * Inserts a log message at the current cursor position in the active editor.
    */
   async insertTextInActiveEditor(): Promise<void> {
     const editor = window.activeTextEditor;
-
     if (!this.validateEditor(editor)) {
       return;
     }
 
     const document = editor.document;
     const selection = editor.selection;
-    const fileName = document.fileName;
     const lineNumber = selection.end.line;
     const cursorPosition = selection.active;
     const rangeUnderCursor = document.getWordRangeAtPosition(cursorPosition);
     const wordUnderCursor = rangeUnderCursor
       ? document.getText(rangeUnderCursor)
-      : null;
+      : '';
     const indent = ' '.repeat(
       document.lineAt(lineNumber).firstNonWhitespaceCharacterIndex,
     );
@@ -87,90 +54,38 @@ export class LogController {
     const variableName =
       document.getText(selection).trim() || wordUnderCursor || 'variable';
 
-    const { languageId } = editor.document;
-
     const logSnippet = this.service.generateLogSnippet(
       indent,
-      workspace.asRelativePath(fileName),
+      workspace.asRelativePath(document.fileName),
       functionName,
       variableName,
       lineNumber + 1,
-      languageId,
+      document.languageId,
     );
 
     const insertPosition = new Position(lineNumber + 1, 0);
-    const nextLineEndPosition = editor.document.lineAt(lineNumber + 1).range
-      .end;
-
     await editor.edit((editBuilder) => {
-      return editBuilder.insert(insertPosition, logSnippet);
+      editBuilder.insert(insertPosition, logSnippet);
     });
-    editor.selection = new Selection(nextLineEndPosition, nextLineEndPosition);
+
+    const nextLine = editor.document.lineAt(lineNumber + 1);
+    const newPosition = new Position(
+      lineNumber + 1,
+      nextLine.range.end.character,
+    );
+    editor.selection = new Selection(newPosition, newPosition);
   }
 
   /**
-   * The editLogs method.
-   * Edit the log statements in the active editor.
-   * @function editLogs
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.editLogs();
-   * @returns {Promise<void>} - The promise with no return value
+   * Allows the user to edit a log statement from a list of logs in the active editor.
    */
   async editLogs(): Promise<void> {
-    const editor = window.activeTextEditor;
-
-    if (!this.validateEditor(editor)) {
+    const selectedLogs = await this.findAndSelectLogs(true);
+    if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const document = editor.document;
-    const code = this.getDocumentText(document);
-    if (!code) {
-      return;
-    }
-
-    const { languageId } = editor.document;
-
-    // Use progress indicator for finding logs in large files
-    const logs = await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Searching for log statements...'),
-        cancellable: false,
-      },
-      async () => {
-        return this.service.findLogEntries(code, languageId);
-      },
-    );
-
-    if (logs.length === 0) {
-      window.showInformationMessage(
-        l10n.t('No logs found in the active editor'),
-      );
-      return;
-    }
-
-    const picks = logs.map((log) => ({
-      label: `Line ${log.line}: ${log.preview}`,
-      description: log.fullText,
-      log,
-    }));
-
-    const placeholder = l10n.t('Selected logs have been commented');
-    const selected = await window.showQuickPick(picks, {
-      canPickMany: true,
-      placeHolder: placeholder,
-    });
-    if (!selected || selected.length === 0) {
-      window.showInformationMessage(
-        l10n.t('Selected logs have been uncommented'),
-      );
-      return;
-    }
-
+    const editor = window.activeTextEditor!;
     const newLogCommand = await window.showInputBox({
       prompt: l10n.t('Enter new log command'),
       placeHolder: 'e.g. console.error',
@@ -180,7 +95,6 @@ export class LogController {
       return;
     }
 
-    // Use progress indicator for editing logs
     await window.withProgress(
       {
         location: ProgressLocation.Notification,
@@ -189,10 +103,10 @@ export class LogController {
       },
       async () => {
         await editor.edit((editBuilder) => {
-          const sorted = selected.sort((a, b) => b.log.start - a.log.start);
+          const sorted = selectedLogs.sort((a, b) => b.start - a.start);
           sorted.forEach((item) => {
-            const startPos = editor.document.positionAt(item.log.start);
-            const endPos = editor.document.positionAt(item.log.end);
+            const startPos = editor.document.positionAt(item.start);
+            const endPos = editor.document.positionAt(item.end);
             const range = new Range(startPos, endPos);
             const logText = editor.document.getText(range);
             const updatedLogText = logText.replace(
@@ -208,279 +122,86 @@ export class LogController {
   }
 
   /**
-   * The removeLogs method.
-   * Remove the log statements in the active editor.
-   * @function removeLogs
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.removeLogs();
-   * @returns {Promise<void>} - The promise with no return value
+   * Removes selected log statements from the active editor.
    */
   async removeLogs(): Promise<void> {
-    const editor = window.activeTextEditor;
-
-    if (!this.validateEditor(editor)) {
+    const selectedLogs = await this.findAndSelectLogs(true);
+    if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const document = editor.document;
-    const code = this.getDocumentText(document);
-    if (!code) {
-      return;
-    }
-
-    const { languageId } = editor.document;
-
-    // Use progress indicator for searching logs in large files
-    const logs = await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Searching for log statements...'),
-        cancellable: false,
-      },
-      async () => {
-        return this.service.findLogEntries(code, languageId);
-      },
-    );
-
-    if (logs.length === 0) {
-      window.showInformationMessage(l10n.t('No logs found for removal'));
-      return;
-    }
-
-    const picks = logs.map((log) => ({
-      label: `Line ${log.line}: ${log.preview}`,
-      description: log.fullText,
-      log,
-    }));
-
-    const placeHolder = l10n.t('Select logs to remove');
-    const selected = await window.showQuickPick(picks, {
-      canPickMany: true,
-      placeHolder,
+    const editor = window.activeTextEditor!;
+    await editor.edit((editBuilder) => {
+      for (const log of selectedLogs) {
+        const rangeIncludingNewline = new Range(
+          log.range.start,
+          editor.document.lineAt(log.range.end.line + 1).range.start,
+        );
+        editBuilder.delete(rangeIncludingNewline);
+      }
     });
-    if (!selected || selected.length === 0) {
-      window.showInformationMessage(l10n.t('No logs selected for removal'));
-      return;
-    }
-
-    // Show progress indicator while removing logs
-    await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Removing selected logs...'),
-        cancellable: false,
-      },
-      async () => {
-        await editor.edit((editBuilder) => {
-          const sorted = selected.sort((a, b) => b.log.line - a.log.line);
-          sorted.forEach((item) => {
-            const startPos = editor.document.positionAt(item.log.start);
-            const endPos = editor.document.positionAt(item.log.end);
-
-            const line = editor.document.lineAt(startPos.line);
-            const lineText = line.text.trim();
-            const logText = editor.document
-              .getText(new Range(startPos, endPos))
-              .trim();
-
-            // If the log statement is the only content on the line (ignoring whitespace),
-            // delete the entire line including the line break.
-            // Also remove a trailing semicolon and whitespace if present.
-            if (
-              lineText === logText ||
-              lineText === logText + ';' ||
-              lineText === logText + '; '
-            ) {
-              editBuilder.delete(line.rangeIncludingLineBreak);
-            } else {
-              // Otherwise, just delete the log statement itself.
-              editBuilder.delete(new Range(startPos, endPos));
-              // Remove trailing semicolon if it immediately follows the log statement
-              const afterLogPos = editor.document.positionAt(item.log.end);
-              const afterLogChar = editor.document.getText(
-                new Range(afterLogPos, afterLogPos.translate(0, 1)),
-              );
-              if (afterLogChar === ';') {
-                editBuilder.delete(
-                  new Range(afterLogPos, afterLogPos.translate(0, 1)),
-                );
-              }
-            }
-          });
-        });
-      },
-    );
-
-    window.showInformationMessage(l10n.t('Selected logs have been removed'));
   }
 
   /**
-   * The commentLogs method.
-   * Comment the log statements in the active editor.
-   * @function commentLogs
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.commentLogs();
-   * @returns {Promise<void>} - The promise with no return value
+   * Comments out selected log statements in the active editor.
    */
   async commentLogs(): Promise<void> {
-    const editor = window.activeTextEditor;
-
-    if (!this.validateEditor(editor)) {
+    const selectedLogs = await this.findAndSelectLogs(true);
+    if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const document = editor.document;
-    const code = this.getDocumentText(document);
-    if (!code) {
-      return;
-    }
+    const editor = window.activeTextEditor!;
+    const commentToken = this.getCommentToken(editor.document.languageId);
 
-    const { languageId } = editor.document;
-
-    // Use progress indicator for finding logs
-    const logRanges = await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Searching for log statements...'),
-        cancellable: false,
-      },
-      async () => {
-        return this.service.findLogEntries(code, languageId);
-      },
-    );
-
-    if (logRanges.length === 0) {
-      window.showInformationMessage(
-        l10n.t('No logs found in the active editor'),
-      );
-      return;
-    }
-
-    const commentToken = this.getCommentToken(languageId);
-
-    // Show progress indicator while commenting logs
-    await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Commenting log statements...'),
-        cancellable: false,
-      },
-      async () => {
-        await editor.edit((editBuilder) => {
-          logRanges.forEach((log) => {
-            const startPos = document.positionAt(log.start);
-            editBuilder.insert(startPos, commentToken);
-          });
-        });
-        return;
-      },
-    );
-
-    window.showInformationMessage(l10n.t('Selected logs have been commented'));
+    await editor.edit((editBuilder) => {
+      for (const log of selectedLogs) {
+        if (!log.isCommented) {
+          editBuilder.insert(log.range.start, commentToken);
+        }
+      }
+    });
   }
 
   /**
-   * The uncommentLogs method.
-   * Uncomment the log statements in the active editor.
-   * @function uncommentLogs
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.uncommentLogs();
-   * @returns {Promise<void>} - The promise with no return value
+   * Uncomments selected log statements in the active editor.
    */
   async uncommentLogs(): Promise<void> {
-    const editor = window.activeTextEditor;
-
-    if (!this.validateEditor(editor)) {
+    const selectedLogs = await this.findAndSelectLogs(true);
+    if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const document = editor.document;
-    const code = this.getDocumentText(document);
-    if (!code) {
-      return;
-    }
+    const editor = window.activeTextEditor!;
+    const commentToken = this.getCommentToken(editor.document.languageId);
 
-    const { languageId } = editor.document;
-
-    // Show progress indicator while searching for commented logs
-    const uncommentRanges = await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Searching for commented log statements...'),
-        cancellable: false,
-      },
-      async () => {
-        const resolvedCommand = this.service.getLogCommand(languageId);
-        const escapedCommand = escapeRegExp(resolvedCommand);
-        const commentToken = this.getCommentToken(languageId);
-
-        const commentPattern = new RegExp(
-          `(^\\s*)(${escapeRegExp(commentToken)})(\\s*)(${escapedCommand})(\\s*\\()`,
-          'gm',
-        );
-
-        const ranges: Array<{ start: number; end: number }> = [];
-
-        let match: RegExpExecArray | null;
-
-        while ((match = commentPattern.exec(code))) {
-          const start = match.index + match[1].length;
-          const end = start + match[2].length + match[3].length;
-          ranges.push({ start, end });
+    await editor.edit((editBuilder) => {
+      for (const log of selectedLogs) {
+        if (log.isCommented) {
+          const line = editor.document.lineAt(log.range.start.line);
+          const lineText = line.text;
+          const indentMatch = lineText.match(/^(\s*)/);
+          const indent = indentMatch ? indentMatch[1] : '';
+          const commentIndex = lineText.indexOf(commentToken, indent.length);
+          if (commentIndex === indent.length) {
+            const start = new Position(line.lineNumber, commentIndex);
+            const end = new Position(
+              line.lineNumber,
+              commentIndex + commentToken.length,
+            );
+            editBuilder.delete(new Range(start, end));
+          }
         }
-
-        return ranges;
-      },
-    );
-
-    if (uncommentRanges.length === 0) {
-      window.showInformationMessage(
-        l10n.t('No commented logs found in the active editor'),
-      );
-      return;
-    }
-
-    // Show progress indicator while uncommenting logs
-    await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: l10n.t('Uncommenting log statements...'),
-        cancellable: false,
-      },
-      async () => {
-        await editor.edit((editBuilder) => {
-          uncommentRanges
-            .sort((a, b) => b.start - a.start)
-            .forEach((range) => {
-              const startPos = document.positionAt(range.start);
-              const endPos = document.positionAt(range.end);
-              editBuilder.delete(new Range(startPos, endPos));
-            });
-        });
-        return;
-      },
-    );
-
-    window.showInformationMessage(l10n.t('Logs have been uncommented'));
+      }
+    });
   }
 
   // Private methods
 
   /**
-   * Validates if the editor is available and active
-   * @function validateEditor
-   * @private
-   * @param {TextEditor | undefined} editor - The editor to validate
-   * @returns {boolean} - Whether the editor is valid
+   * Validates if the editor is available and active.
+   * @param editor - The editor to validate.
+   * @returns True if the editor is valid, false otherwise.
    */
   private validateEditor(editor: TextEditor | undefined): editor is TextEditor {
     if (!editor) {
@@ -491,78 +212,53 @@ export class LogController {
   }
 
   /**
-   * Gets the text from a document with validation
-   * @function getDocumentText
-   * @private
-   * @param {TextDocument} document - The document to get text from
-   * @returns {string | null} - The document text or null if invalid
+   * Gets the entire text from a document.
+   * @param document - The document to get text from.
+   * @returns The document text or null if empty.
    */
   private getDocumentText(document: TextDocument): string | null {
-    if (!document) {
-      window.showErrorMessage(l10n.t('No active document available!'));
-      return null;
-    }
-
     const text = document.getText();
     if (!text) {
-      window.showErrorMessage(l10n.t('The active editor is empty!'));
+      window.showInformationMessage(l10n.t('The active editor is empty!'));
       return null;
     }
-
     return text;
   }
 
   /**
-   * The extractFunctionName method.
-   * Extract the function name from the document at the specified position.
-   * @function extractFunctionName
-   * @private
-   * @async
-   * @param {TextDocument} document - The text document
-   * @param {Position} position - The position
-   * @memberof LogController
-   * @example
-   * this.extractFunctionName(document, position);
-   * @returns {Promise<string>} - The function
+   * Extracts the name of the function containing the given position.
+   * @param document - The text document.
+   * @param position - The position in the document.
+   * @returns The function name or an empty string.
    */
   private async extractFunctionName(
     document: TextDocument,
     position: Position,
   ): Promise<string> {
-    let functionName = '';
     const symbols = (await commands.executeCommand(
       'vscode.executeDocumentSymbolProvider',
       document.uri,
-    )) as DocumentSymbol[];
-    if (symbols && symbols.length > 0) {
+    )) as DocumentSymbol[] | undefined;
+
+    if (symbols) {
       const funcSymbol = this.findFunctionSymbol(symbols, position);
       if (funcSymbol) {
-        functionName = funcSymbol.name.trim();
+        return funcSymbol.name.trim();
       }
     }
-    if (!functionName) {
-      const regex =
-        /\b(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\(.*?\)\s*=>)/;
-      const lineText = document.lineAt(position.line).text;
-      const match = regex.exec(lineText);
-      if (match) {
-        functionName = match[1];
-      }
-    }
-    return functionName;
+
+    const lineText = document.lineAt(position.line).text;
+    const regex =
+      /\b(?:const|let|var)\s+([\w$]+)\s*=\s*(?:async\s*)?(?:function\*?|\(.*\))\s*=>/;
+    const match = regex.exec(lineText);
+    return match ? match[1] : '';
   }
 
   /**
-   * The findFunctionSymbol method.
-   * Find the function symbol that contains the specified line number.
-   * @function findFunctionSymbol
-   * @private
-   * @param {DocumentSymbol[]} symbols - The list of document symbols
-   * @param {number} lineNumber - The line number
-   * @memberof LogController
-   * @example
-   * this.findFunctionSymbol(symbols, lineNumber);
-   * @returns {DocumentSymbol | undefined} - The function symbol
+   * Finds the function symbol that contains the specified position.
+   * @param symbols - The list of document symbols.
+   * @param position - The position in the document.
+   * @returns The function symbol or undefined.
    */
   private findFunctionSymbol(
     symbols: DocumentSymbol[],
@@ -576,11 +272,9 @@ export class LogController {
         ) {
           return symbol;
         }
-        if (symbol.children && symbol.children.length > 0) {
-          const result = this.findFunctionSymbol(symbol.children, position);
-          if (result) {
-            return result;
-          }
+        const result = this.findFunctionSymbol(symbol.children, position);
+        if (result) {
+          return result;
         }
       }
     }
@@ -588,15 +282,105 @@ export class LogController {
   }
 
   /**
-   * The getCommentToken method.
-   * Get the comment token based on the language ID.
-   * @function getCommentToken
-   * @private
-   * @param {string} languageId - The language ID of the document
-   * @memberof LogController
-   * @example
-   * this.getCommentToken(document);
-   * @returns {string} - The comment token
+   * Finds and allows the user to select log entries in the active editor.
+   * @param canPickMany - Whether the user can select multiple logs.
+   * @returns The selected log entries or null.
+   */
+  private async findAndSelectLogs(
+    canPickMany: boolean,
+  ): Promise<LogEntry[] | null> {
+    const editor = window.activeTextEditor;
+    if (!this.validateEditor(editor)) {
+      return null;
+    }
+
+    const document = editor.document;
+    const code = this.getDocumentText(document);
+    if (!code) {
+      return null;
+    }
+
+    type RawLog = {
+      start: number;
+      end: number;
+      line: number;
+      preview: string;
+      fullText: string;
+    };
+
+    const rawLogs = (await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: l10n.t('Searching for log statements...'),
+        cancellable: false,
+      },
+      () =>
+        Promise.resolve(this.service.findLogEntries(code, document.languageId)),
+    )) as RawLog[];
+
+    if (!rawLogs || rawLogs.length === 0) {
+      window.showInformationMessage(
+        l10n.t('No logs found in the active editor'),
+      );
+      return null;
+    }
+
+    const logs: LogEntry[] = await Promise.all(
+      rawLogs.map(async (rawLog) => {
+        const range = new Range(
+          document.positionAt(rawLog.start),
+          document.positionAt(rawLog.end),
+        );
+        const lineText = document.lineAt(range.start.line).text;
+        const indentation = lineText.substring(0, range.start.character);
+        const commentToken = this.getCommentToken(document.languageId);
+        const isCommented = lineText.trim().startsWith(commentToken.trim());
+        const functionName = await this.extractFunctionName(
+          document,
+          range.start,
+        );
+        const match = /,\s*([^)]*)\s*\)/.exec(rawLog.fullText);
+        const log = match ? match[1].trim() : rawLog.preview;
+
+        return {
+          ...rawLog,
+          range,
+          indentation,
+          isCommented,
+          functionName,
+          log,
+        };
+      }),
+    );
+
+    const picks = logs.map((log) => ({
+      label: `Line ${log.line}: ${log.preview}`,
+      description: log.functionName ? l10n.t('in {0}', log.functionName) : '',
+      log,
+    }));
+
+    const placeHolder = canPickMany
+      ? l10n.t('Select logs to process')
+      : l10n.t('Select a log to process');
+
+    const selectedPicks = await window.showQuickPick(picks, {
+      placeHolder,
+      canPickMany,
+    });
+
+    if (!selectedPicks) {
+      return null;
+    }
+
+    return Array.isArray(selectedPicks)
+      ? selectedPicks.map((p) => p.log)
+      : [selectedPicks.log];
+  }
+
+  /**
+   * Gets the comment token for a given language ID.
+   * @param languageId - The language ID.
+   * @returns The comment token.
    */
   private getCommentToken(languageId: string): string {
     switch (languageId) {
@@ -612,7 +396,6 @@ export class LogController {
       case 'swift':
       case 'scala':
         return '// ';
-
       case 'python':
       case 'ruby':
       case 'perl':
@@ -620,11 +403,9 @@ export class LogController {
       case 'elixir':
       case 'shellscript':
         return '# ';
-
       case 'lua':
       case 'haskell':
         return '-- ';
-
       default:
         return '// ';
     }

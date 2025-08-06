@@ -1,147 +1,86 @@
 import { LogTemplate } from '../types';
 
 /**
- * EXTENSION_ID: The unique identifier of the extension.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(EXTENSION_ID);
- *
- * @returns {string} - The unique identifier of the extension
+ * The unique identifier of the extension.
+ * @example console.log(EXTENSION_ID);
  */
 export const EXTENSION_ID: string = 'codeLogPlus';
 
 /**
- * EXTENSION_NAME: The repository ID of the extension.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(EXTENSION_NAME);
- *
- * @returns {string} - The repository ID of the extension
+ * The repository ID of the extension.
+ * @example console.log(EXTENSION_NAME);
  */
 export const EXTENSION_NAME: string = 'vscode-code-log-plus';
 
 /**
- * EXTENSION_DISPLAY_NAME: The name of the extension.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(EXTENSION_DISPLAY_NAME);
- *
- * @returns {string} - The name of the extension
+ * The display name of the extension.
+ * @example console.log(EXTENSION_DISPLAY_NAME);
  */
 export const EXTENSION_DISPLAY_NAME: string = 'CodeLog+';
 
 /**
- * USER_PUBLISHER: The publisher of the extension.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(USER_PUBLISHER);
- *
- * @returns {string} - The publisher of the extension
+ * The publisher of the extension.
+ * @example console.log(USER_PUBLISHER);
  */
 export const USER_PUBLISHER: string = 'imgildev';
 
 /**
- * DEFAULT_ENABLE_SETTING: The default value for the enable setting.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_ENABLE_SETTING);
- *
- * @returns {boolean} - The default value for the enable setting
+ * The default value for the enable setting.
+ * @example console.log(DEFAULT_ENABLE_SETTING);
  */
 export const DEFAULT_ENABLE_SETTING: boolean = true;
 
 /**
- * DEFAULT_LANGUAGE_SETTING: The default value for the language setting.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_LANGUAGE_SETTING);
- *
- * @returns {string} - The default value for the language setting
+ * The default value for the language setting.
+ * @example console.log(DEFAULT_LANGUAGE_SETTING);
  */
 export const DEFAULT_LANGUAGE_SETTING: string = 'javascript';
 
 /**
- * DEFAULT_LOG_COMMAND_SETTING: The default value for the log command setting.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_LOG_COMMAND_SETTING);
- *
- * @returns {string} - The default value for the log command setting
+ * The default value for the log command setting.
+ * @example console.log(DEFAULT_LOG_COMMAND_SETTING);
  */
 export const DEFAULT_LOG_COMMAND_SETTING: string = '';
 
 /**
- * DEFAULT_LOG_MESSAGE_WRAPPED_SETTING: The default value for the log message wrapped setting.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_LOG_MESSAGE_WRAPPED_SETTING);
- *
- * @returns {boolean} - The default value for the log message wrapped setting
+ * The default value for the log message wrapped setting.
+ * @example console.log(DEFAULT_LOG_MESSAGE_WRAPPED_SETTING);
  */
 export const DEFAULT_LOG_MESSAGE_WRAPPED_SETTING: boolean = false;
 
 /**
- * DEFAULT_LOG_MESSAGE_PREFIX: The default value for the log message prefix.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_LOG_MESSAGE_PREFIX);
- *
- * @returns {string} - The default value for the log message prefix
+ * The default value for the border wrap character.
+ * @example console.log(DEFAULT_BORDER_WRAP_CHARACTER);
+ */
+export const DEFAULT_BORDER_WRAP_CHARACTER: string = '-';
+
+/**
+ * The default value for the border wrap length.
+ * @example console.log(DEFAULT_BORDER_WRAP_LENGTH);
+ */
+export const DEFAULT_BORDER_WRAP_LENGTH: number = 20;
+
+/**
+ * The default value for the log message prefix.
+ * @example console.log(DEFAULT_LOG_MESSAGE_PREFIX);
  */
 export const DEFAULT_LOG_MESSAGE_PREFIX: string = '🔍';
 
 /**
- * DEFAULT_USE_ACCESSIBLE_LOGS_SETTING: The default value for the accessibility setting.
- * When true, uses text-based alternatives instead of emojis for better screen reader compatibility.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_USE_ACCESSIBLE_LOGS_SETTING);
- *
- * @returns {boolean} - The default value for the accessibility setting
+ * The default value for the accessibility setting.
+ * @example console.log(DEFAULT_USE_ACCESSIBLE_LOGS_SETTING);
  */
 export const DEFAULT_USE_ACCESSIBLE_LOGS_SETTING: boolean = false;
 
 /**
- * DEFAULT_MESSAGE_LOG_DELIMITER: The default value for the message log delimiter.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_MESSAGE_LOG_DELIMITER);
- *
- * @returns {string} - The default value for the message log delimiter
+ * The default value for the message log delimiter.
+ * @example console.log(DEFAULT_MESSAGE_LOG_DELIMITER);
  */
 export const DEFAULT_MESSAGE_LOG_DELIMITER: string = '~';
 
 /**
- * DEFAULT_MESSAGE_LOG_SUFFIX: The default value for the message log suffix.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_MESSAGE_LOG_SUFFIX);
- *
- * @returns {string} - The default value for the message log suffix
+ * The default value for the message log suffix.
+ * @example console.log(DEFAULT_MESSAGE_LOG_SUFFIX);
  */
 export const DEFAULT_MESSAGE_LOG_SUFFIX: string = ':';
 
@@ -152,92 +91,46 @@ export const DEFAULT_MESSAGE_LOG_SUFFIX: string = ':';
  * @memberof Constants
  * @example
  * console.log(DEFAULT_SEMICOLON_REQUIRED_SETTING);
- *
- * @returns {boolean} - The default value for the semicolon required setting
  */
 export const DEFAULT_SEMICOLON_REQUIRED_SETTING: boolean = true;
 
 /**
- * DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING: The default value for the add empty line before log message setting.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING);
- *
- * @returns {boolean} - The default value for the add empty line before log message setting
+ * The default value for the add empty line before log setting.
  */
-export const DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING: boolean = false;
+export const DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_SETTING: boolean = false;
 
 /**
- * DEFAULT_ADD_EMPTY_LINE_AFTER_LOG_SETTING: The default value for the add empty line after log setting.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_ADD_EMPTY_LINE_AFTER_LOG_SETTING);
- *
- * @returns {boolean} - The default value for the add empty line after log setting
+ * The default value for the add empty line after log setting.
  */
 export const DEFAULT_ADD_EMPTY_LINE_AFTER_LOG_SETTING: boolean = false;
 
 /**
- * DEFAULT_USE_SINGLE_QUOTES_SETTING: The default value for the use single quotes setting.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_USE_SINGLE_QUOTES_SETTING);
- *
- * @returns {boolean} - The default value for the use single quotes setting
+ * The default value for the use single quotes setting.
+ * @example console.log(DEFAULT_USE_SINGLE_QUOTES_SETTING);
  */
 export const DEFAULT_USE_SINGLE_QUOTES_SETTING: boolean = false;
 
 /**
- * DEFAULT_LITERAL_OPEN_SETTING: The default value for the literal open setting.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_LITERAL_OPEN_SETTING);
- *
- * @returns {string} - The default value for the literal open setting
+ * The default value for the literal open setting.
+ * @example console.log(DEFAULT_LITERAL_OPEN_SETTING);
  */
 export const DEFAULT_LITERAL_OPEN_SETTING: string = '{';
 
 /**
- * DEFAULT_LITERAL_CLOSE_SETTING: The default value for the literal close setting.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_LITERAL_CLOSE_SETTING);
- *
- * @returns {string} - The default value for the literal close setting
+ * The default value for the literal close setting.
+ * @example console.log(DEFAULT_LITERAL_CLOSE_SETTING);
  */
 export const DEFAULT_LITERAL_CLOSE_SETTING: string = '}';
 
 /**
- * DEFAULT_HIGHLIGHT_COLOR_SETTING: The default value for the highlight color setting.
- * @type {string}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_HIGHLIGHT_COLOR_SETTING);
- *
- * @returns {string} - The default value for the highlight color setting
+ * The default value for the highlight color setting.
+ * @example console.log(DEFAULT_HIGHLIGHT_COLOR_SETTING);
  */
 export const DEFAULT_HIGHLIGHT_COLOR_SETTING: string = '#FFD700';
 
 /**
- * DEFAULT_HIGHLIGHT_STYLE_SETTING: The default value for the highlight style setting.
- * @type {'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_HIGHLIGHT_STYLE_SETTING);
- *
- * @returns {string} - The default value for the highlight style setting
+ * The default value for the highlight style setting.
+ * @example console.log(DEFAULT_HIGHLIGHT_STYLE_SETTING);
  */
 export const DEFAULT_HIGHLIGHT_STYLE_SETTING:
   | 'solid'
@@ -247,38 +140,20 @@ export const DEFAULT_HIGHLIGHT_STYLE_SETTING:
   | 'wavy' = 'wavy';
 
 /**
- * DEFAULT_CUSTOM_LOG_TEMPLATES: The default value for the custom log templates.
- * @type {LogTemplate[]}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_CUSTOM_LOG_TEMPLATES);
- *
- * @returns {LogTemplate[]} - The default value for the custom log templates
+ * The default value for the custom log templates.
+ * @example console.log(DEFAULT_CUSTOM_LOG_TEMPLATES);
  */
 export const DEFAULT_CUSTOM_LOG_TEMPLATES: LogTemplate[] = [];
 
 /**
- * DEFAULT_INCLUDE_PATTERNS: The default file patterns to include in the extension's file operations.
- * @type {string[]}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_INCLUDE_PATTERNS);
- *
- * @returns {string[]} - The default file patterns to include
+ * The default file patterns to include in the extension's file operations.
+ * @example console.log(DEFAULT_INCLUDE_PATTERNS);
  */
 export const DEFAULT_INCLUDE_PATTERNS: string[] = ['**/*.{js,jsx,ts,tsx}'];
 
 /**
- * DEFAULT_EXCLUDE_PATTERNS: The default file patterns to exclude from the extension's file operations.
- * @type {string[]}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_EXCLUDE_PATTERNS);
- *
- * @returns {string[]} - The default file patterns to exclude
+ * The default file patterns to exclude from the extension's file operations.
+ * @example console.log(DEFAULT_EXCLUDE_PATTERNS);
  */
 export const DEFAULT_EXCLUDE_PATTERNS: string[] = [
   '**/node_modules/**',
@@ -289,50 +164,25 @@ export const DEFAULT_EXCLUDE_PATTERNS: string[] = [
 ];
 
 /**
- * DEFAULT_MAX_SEARCH_RECURSION_DEPTH: The default maximum recursion depth for file search operations.
- * 0 means unlimited depth.
- * @type {number}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_MAX_SEARCH_RECURSION_DEPTH);
- *
- * @returns {number} - The default maximum recursion depth for file search
+ * The default maximum recursion depth for file search operations (0 means unlimited).
+ * @example console.log(DEFAULT_MAX_SEARCH_RECURSION_DEPTH);
  */
 export const DEFAULT_MAX_SEARCH_RECURSION_DEPTH: number = 0;
 
 /**
- * DEFAULT_SUPPORTS_HIDDEN_FILES: The default value for whether to include hidden files in search operations.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_SUPPORTS_HIDDEN_FILES);
- *
- * @returns {boolean} - The default value for including hidden files in search
+ * The default value for whether to include hidden files in search operations.
+ * @example console.log(DEFAULT_SUPPORTS_HIDDEN_FILES);
  */
 export const DEFAULT_SUPPORTS_HIDDEN_FILES: boolean = true;
 
 /**
- * DEFAULT_PRESERVE_GITIGNORE_SETTINGS: The default value for whether to respect .gitignore settings during file search.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(DEFAULT_PRESERVE_GITIGNORE_SETTINGS);
- *
- * @returns {boolean} - The default value for respecting .gitignore settings
+ * The default value for whether to respect .gitignore settings during file search.
+ * @example console.log(DEFAULT_PRESERVE_GITIGNORE_SETTINGS);
  */
 export const DEFAULT_PRESERVE_GITIGNORE_SETTINGS: boolean = false;
 
 /**
- * IS_INCLUDE_FILE_PATH_DEFAULT: The default value for whether to show the file path in search results.
- * @type {boolean}
- * @public
- * @memberof Constants
- * @example
- * console.log(IS_INCLUDE_FILE_PATH_DEFAULT);
- *
- * @returns {boolean} - The default value for showing file paths in search results
+ * The default value for whether to show the file path in search results.
+ * @example console.log(DEFAULT_SHOW_FILE_PATH);
  */
-export const IS_INCLUDE_FILE_PATH_DEFAULT: boolean = true;
+export const DEFAULT_SHOW_FILE_PATH: boolean = true;

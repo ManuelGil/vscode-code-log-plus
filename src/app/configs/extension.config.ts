@@ -3,7 +3,9 @@ import { WorkspaceConfiguration } from 'vscode';
 import { LogTemplate } from '../types';
 import {
   DEFAULT_ADD_EMPTY_LINE_AFTER_LOG_SETTING,
-  DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING,
+  DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_SETTING,
+  DEFAULT_BORDER_WRAP_CHARACTER,
+  DEFAULT_BORDER_WRAP_LENGTH,
   DEFAULT_CUSTOM_LOG_TEMPLATES,
   DEFAULT_ENABLE_SETTING,
   DEFAULT_EXCLUDE_PATTERNS,
@@ -24,21 +26,13 @@ import {
   DEFAULT_SUPPORTS_HIDDEN_FILES,
   DEFAULT_USE_ACCESSIBLE_LOGS_SETTING,
   DEFAULT_USE_SINGLE_QUOTES_SETTING,
-  IS_INCLUDE_FILE_PATH_DEFAULT,
+  DEFAULT_SHOW_FILE_PATH,
 } from './constants.config';
 
 /**
- * The Config class.
- *
- * @class
- * @classdesc The class that represents the configuration of the extension.
- * @export
- * @public
- * @property {WorkspaceConfiguration} config - The workspace configuration
+ * The class that represents the configuration of the extension.
  * @example
- * const config = new Config(workspace.getConfiguration());
- * console.log(config.includeExtensionOnExport);
- * console.log(config.exclude);
+ * const config = new ExtensionConfig(workspace.getConfiguration());
  */
 export class ExtensionConfig {
   // -----------------------------------------------------------------
@@ -49,221 +43,123 @@ export class ExtensionConfig {
 
   /**
    * Enable or disable the extension.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.enable);
-   * @default true
+   * @example console.log(config.enable);
    */
   enable: boolean;
 
   /**
    * Default language to be used for logging.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.defaultLanguage);
-   * @default "javascript"
+   * @example console.log(config.defaultLanguage);
    */
   defaultLanguage: string;
 
   /**
    * The command used for logging messages.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.logCommand);
-   * @default ""
+   * @example console.log(config.logCommand);
    */
   logCommand: string;
 
   /**
    * Determine whether to wrap the log message with additional formatting or markers.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.isLogMessageWrapped);
-   * @default false
+   * @example console.log(config.isLogMessageWrapped);
    */
   isLogMessageWrapped: boolean;
 
   /**
    * Character to be used for drawing the border in log wraps.
    * For example, an underscore (_) or an asterisk (*).
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.borderWrapCharacter);
-   * @default "-"
+   * @example console.log(config.borderWrapCharacter);
    */
   borderWrapCharacter: string;
 
   /**
    * Number of times the border character will be repeated to create a border line.
    * For example, 20 to create a 20-character line.
-   * @type {number}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.borderWrapLength);
-   * @default 20
+   * @example console.log(config.borderWrapLength);
    */
   borderWrapLength: number;
 
   /**
    * Prefix added at the beginning of the log message.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.logMessagePrefix);
-   * @default "🔍"
+   * @example console.log(config.logMessagePrefix);
    */
   logMessagePrefix: string;
 
   /**
    * Use accessible text alternatives instead of emojis for better screen reader compatibility.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.useAccessibleLogs);
-   * @default false
+   * @example console.log(config.useAccessibleLogs);
    */
   useAccessibleLogs: boolean;
 
   /**
    * Delimiter to separate different elements inside the log message (e.g., filename, line number, class, function, variable).
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.messageLogDelimiter);
-   * @default "~"
+   * @example console.log(config.messageLogDelimiter);
    */
   messageLogDelimiter: string;
 
   /**
    * Suffix added at the end of the log message.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.messageLogSuffix);
-   * @default ":"
+   * @example console.log(config.messageLogSuffix);
    */
   messageLogSuffix: string;
 
   /**
    * Append a semicolon at the end of the log statement if required by the programming language.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.isSemicolonRequired);
-   * @default true
+   * @example console.log(config.isSemicolonRequired);
    */
   isSemicolonRequired: boolean;
 
   /**
    * Insert an empty line before the log message for improved readability.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.addEmptyLineBeforeLogMessage);
-   * @default false
+   * @example console.log(config.addEmptyLineBeforeLogMessage);
    */
   addEmptyLineBeforeLogMessage: boolean;
 
   /**
    * Insert an empty line after the log message for improved readability.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.addEmptyLineAfterLog);
-   * @default false
+   * @example console.log(config.addEmptyLineAfterLog);
    */
   addEmptyLineAfterLog: boolean;
 
   /**
    * Use single quotes instead of double quotes in the log message.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.useSingleQuotes);
-   * @default false
+   * @example console.log(config.useSingleQuotes);
    */
   useSingleQuotes: boolean;
 
   /**
    * The literal open characters for the log message.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.literalOpen);
-   * @default "{"
+   * @example console.log(config.literalOpen);
    */
   literalOpen: string;
 
   /**
    * The literal close characters for the log message.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.literalClose);
-   * @default "}"
+   * @example console.log(config.literalClose);
    */
   literalClose: string;
 
   /**
    * Highlight color for the log statements.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.highlightColor);
-   * @default "#FFD700"
+   * @example console.log(config.highlightColor);
    */
   highlightColor: string;
 
   /**
    * Highlight style for the log statements.
-   * @type {'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.highlightStyle);
-   * @default "wavy"
+   * @example console.log(config.highlightStyle);
    */
   highlightStyle: 'solid' | 'double' | 'dotted' | 'dashed' | 'wavy';
 
   /**
-   * Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{functionName}}}, {{{variableName}}}, {{{filename}}}, {{{lineNumber}}}).
-   * @type {LogTemplate[]}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * console.log(config.customLogTemplates);
-   * @default
-   * ```typescript
-   * []
-   * ```
-   * @default []
+   * Custom log message templates for different languages. You can define a template per language using available variables (e.g., {{{logCommand}}}, {{{logMessagePrefix}}}, {{{variableName}}}, {{{fileName}}}, {{{lineNumber}}}).
+   * @example console.log(config.customLogTemplates);
    */
   customLogTemplates: LogTemplate[];
 
   /**
    * Glob patterns for files to include in the extension's file operations (e.g., for tree views and search).
+   * @example console.log(config.includedFilePatterns);
    */
   includedFilePatterns: string[];
 
@@ -274,23 +170,27 @@ export class ExtensionConfig {
 
   /**
    * Maximum recursion depth for file search (0 = unlimited).
+   * @example console.log(config.maxSearchRecursionDepth);
    */
   maxSearchRecursionDepth: number;
 
   /**
    * Whether to include hidden files in search operations.
+   * @example console.log(config.supportsHiddenFiles);
    */
   supportsHiddenFiles: boolean;
 
   /**
    * Whether to respect .gitignore settings during file search.
+   * @example console.log(config.preserveGitignoreSettings);
    */
   preserveGitignoreSettings: boolean;
 
   /**
    * Whether to show the file path in the search results.
+   * @example console.log(config.showFilePathInResults);
    */
-  includeFilePath: boolean;
+  showFilePathInResults: boolean;
 
   // -----------------------------------------------------------------
   // Constructor
@@ -301,8 +201,6 @@ export class ExtensionConfig {
    *
    * @constructor
    * @param {WorkspaceConfiguration} config - The workspace configuration
-   * @public
-   * @memberof Config
    */
   constructor(readonly config: WorkspaceConfiguration) {
     // Enable or disable the extension.
@@ -323,9 +221,15 @@ export class ExtensionConfig {
       DEFAULT_LOG_MESSAGE_WRAPPED_SETTING,
     );
     // Character used to draw the border in log wraps.
-    this.borderWrapCharacter = config.get<string>('borderWrapCharacter', '-');
+    this.borderWrapCharacter = config.get<string>(
+      'borderWrapCharacter',
+      DEFAULT_BORDER_WRAP_CHARACTER,
+    );
     // Number of times the border character is repeated to create a border line.
-    this.borderWrapLength = config.get<number>('borderWrapLength', 20);
+    this.borderWrapLength = config.get<number>(
+      'borderWrapLength',
+      DEFAULT_BORDER_WRAP_LENGTH,
+    );
     // Prefix added at the beginning of the log message.
     this.logMessagePrefix = config.get<string>(
       'logMessagePrefix',
@@ -354,7 +258,7 @@ export class ExtensionConfig {
     // Insert an empty line before the log message for improved readability.
     this.addEmptyLineBeforeLogMessage = config.get<boolean>(
       'addEmptyLineBeforeLogMessage',
-      DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_MESSAGE_SETTING,
+      DEFAULT_ADD_EMPTY_LINE_BEFORE_LOG_SETTING,
     );
     // Insert an empty line after the log message for improved readability.
     this.addEmptyLineAfterLog = config.get<boolean>(
@@ -416,9 +320,9 @@ export class ExtensionConfig {
       DEFAULT_PRESERVE_GITIGNORE_SETTINGS,
     );
     // Whether to show the file path in the search results.
-    this.includeFilePath = config.get<boolean>(
+    this.showFilePathInResults = config.get<boolean>(
       'files.includeFilePath',
-      IS_INCLUDE_FILE_PATH_DEFAULT,
+      DEFAULT_SHOW_FILE_PATH,
     );
   }
 
@@ -432,11 +336,6 @@ export class ExtensionConfig {
    *
    * @function update
    * @param {WorkspaceConfiguration} config - The workspace configuration
-   * @public
-   * @memberof Config
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * config.update(workspace.getConfiguration());
    */
   update(config: WorkspaceConfiguration): void {
     // Enable or disable the extension.
@@ -547,9 +446,9 @@ export class ExtensionConfig {
       this.preserveGitignoreSettings,
     );
     // Whether to show the file path in the search results.
-    this.includeFilePath = config.get<boolean>(
+    this.showFilePathInResults = config.get<boolean>(
       'files.includeFilePath',
-      this.includeFilePath,
+      this.showFilePathInResults,
     );
   }
 }

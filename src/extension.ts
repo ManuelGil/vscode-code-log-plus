@@ -24,25 +24,29 @@ import { ListLogProvider } from './app/providers';
  * @param config The extension configuration
  * @returns True if the extension is enabled, false otherwise
  */
+let warningShown = false;
+
 function isExtensionEnabled(config: ExtensionConfig): boolean {
   if (!config.enable) {
-    const message = vscode.l10n.t(
-      'The {0} extension is disabled in settings. Enable it to use its features',
-      EXTENSION_DISPLAY_NAME,
-    );
-    vscode.window.showWarningMessage(message);
+    if (!warningShown) {
+      const message = vscode.l10n.t(
+        'The {0} extension is disabled in settings. Enable it to use its features',
+        EXTENSION_DISPLAY_NAME,
+      );
+      vscode.window.showWarningMessage(message);
+      warningShown = true;
+    }
     return false;
   }
 
+  warningShown = false;
   return true;
 }
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 /**
- * This method is called when your extension is activated
- * Sets up the extension, registers commands, and initializes services
- * @param context The extension context provided by VSCode
+ * This method is called when the extension is activated.
+ * It sets up the extension, registers commands, and initializes services.
+ * @param context The extension context provided by VSCode.
  */
 export async function activate(context: vscode.ExtensionContext) {
   // The code you place here will be executed every time your command is executed
@@ -231,49 +235,60 @@ export async function activate(context: vscode.ExtensionContext) {
   // Check for updates to the extension
   try {
     // Retrieve the latest version
-    VSCodeMarketplaceClient.getLatestVersion(
-      USER_PUBLISHER,
-      EXTENSION_NAME,
-    ).then((latestVersion) => {
-      // Check if the latest version is different from the current version
-      if (latestVersion !== currentVersion) {
-        const actions: vscode.MessageItem[] = [
-          {
-            title: vscode.l10n.t('Update Now'),
-          },
-          {
-            title: vscode.l10n.t('Dismiss'),
-          },
-        ];
+    VSCodeMarketplaceClient.getLatestVersion(USER_PUBLISHER, EXTENSION_NAME)
+      .then((latestVersion: string) => {
+        // Check if the latest version is different from the current version
+        if (latestVersion > currentVersion) {
+          const actions: vscode.MessageItem[] = [
+            {
+              title: vscode.l10n.t('Update'),
+            },
+            {
+              title: vscode.l10n.t('Dismiss'),
+            },
+          ];
 
+          const message = vscode.l10n.t(
+            'A new version of {0} is available. Update to version {1} now',
+            [EXTENSION_DISPLAY_NAME, latestVersion],
+          );
+          vscode.window
+            .showInformationMessage(message, ...actions)
+            .then((option) => {
+              if (!option) {
+                return;
+              }
+
+              // Handle the actions
+              switch (option?.title) {
+                case actions[0].title:
+                  vscode.env.openExternal(
+                    vscode.Uri.parse(
+                      `https://marketplace.visualstudio.com/items?itemName=${USER_PUBLISHER}.${EXTENSION_NAME}`,
+                    ),
+                  );
+                  break;
+              }
+            });
+        }
+      })
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          console.error('Error checking for updates:', error.message);
+        } else {
+          console.error(
+            'An unknown error occurred while checking for updates:',
+            error,
+          );
+        }
         const message = vscode.l10n.t(
-          'A new version of {0} is available. Update to version {1} now',
-          [EXTENSION_DISPLAY_NAME, latestVersion],
+          'Failed to check for new version of the extension',
         );
-        vscode.window
-          .showInformationMessage(message, ...actions)
-          .then(async (option) => {
-            if (!option) {
-              return;
-            }
-
-            // Handle the actions
-            switch (option?.title) {
-              case actions[0].title:
-                await vscode.commands.executeCommand(
-                  'workbench.extensions.action.install.anotherVersion',
-                  `${USER_PUBLISHER}.${EXTENSION_NAME}`,
-                );
-                break;
-
-              default:
-                break;
-            }
-          });
-      }
-    });
+        vscode.window.showErrorMessage(message);
+      });
   } catch (error) {
-    console.error('Error retrieving extension version:', error);
+    // Only log fatal errors that occur during the update check process
+    console.error('Fatal error while checking for extension updates:', error);
   }
 
   // -----------------------------------------------------------------
@@ -484,8 +499,8 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * This method is called when your extension is deactivated
- * Clean up any resources that the extension allocated
+ * This method is called when the extension is deactivated.
+ * It cleans up any resources that the extension allocated.
  */
 export function deactivate() {
   // Currently no cleanup needed

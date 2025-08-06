@@ -7,29 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2025-08-05
+
+### Added
+
+- Introduce `LogCommandMap` interface and `defaultLogCommand` for various programming languages
+- Create `LogEntry` interface to represent log entries with detailed attributes
+- Add `LogTemplate` interface and a comprehensive list of default log templates for multiple languages
+- Define a list of supported languages in `supportedLanguages` for consistency across the application
+
 ## [1.8.0] - 2025-07-18
 
 ### Added
 
-- Add support for additional programming languages in log statements, including Kotlin, Swift, Scala, Lua, Perl, Elixir, and Haskell.
-- Add border wrapping options for log messages, allowing customization of the border character and length.
+- Add support for additional programming languages in log statements, including `Kotlin`, `Swift`, `Scala`, `Lua`, `Perl`, `Elixir`, and `Haskell`
+- Add border wrapping options for log messages, allowing customization of the border character and length
 
 ## [1.7.0] - 2025-07-17
 
 ### Added
 
-- Add `inflector.helper.ts` with functions for `camelCase`, `PascalCase`, `snake_case`, and more.
-- Add `text.helper.ts` for escaping special characters in regex.
-- Add `NodeModel` class to represent files and folders in the workspace tree.
-- Implement `ListLogProvider` to handle the display and interaction with log files.
-- Add `getLogCommand` method to `LogService` for better command management.
+- Add `inflector.helper.ts` with functions for `camelCase`, `PascalCase`, `snake_case`, and more
+- Add `text.helper.ts` for escaping special characters in regex
+- Add `NodeModel` class to represent files and folders in the workspace tree
+- Implement `ListLogProvider` to handle the display and interaction with log files
+- Add `getLogCommand` method to `LogService` for better command management
 - Add accessibility option `useAccessibleLogs` to replace emojis with text alternatives in log messages, improving screen reader compatibility
 
 ### Changed
 
-- Integrate with `LogService` to fetch and display log entries.
-- Update log message handling to support accessible prefixes for emojis.
-- Improve workspace folder selection and persistence in global state.
+- Integrate with `LogService` to fetch and display log entries
+- Update log message handling to support accessible prefixes for emojis
+- Improve workspace folder selection and persistence in global state
 - Implement progress indicators for long-running operations on large files to enhance user experience
 
 ## [1.6.0] - 2025-03-16
@@ -106,7 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.5.1...v1.6.0

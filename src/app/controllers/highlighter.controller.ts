@@ -1,23 +1,16 @@
 import {
-  l10n,
   Range,
   TextEditor,
   TextEditorDecorationType,
+  l10n,
   window,
 } from 'vscode';
 
 import { LogService } from '../services';
 
 /**
- * The CodeHighlighterController class.
- *
- * @class
- * @classdesc The class that represents the code highlighter controller.
- * @export
- * @public
- * @property {TextEditorDecorationType} decorationType - The decoration type object
- * @example
- * const controller = new CodeHighlighterController();
+ * The class that represents the code highlighter controller.
+ * @example const controller = new CodeHighlighterController(logService);
  */
 export class CodeHighlighterController {
   // -----------------------------------------------------------------
@@ -28,12 +21,6 @@ export class CodeHighlighterController {
 
   /**
    * The decoration type object.
-   *
-   * @private
-   * @type {TextEditorDecorationType}
-   * @memberof CodeHighlighterController
-   * @example
-   * this.decorationType;
    */
   private decorationType: TextEditorDecorationType;
 
@@ -42,11 +29,7 @@ export class CodeHighlighterController {
   // -----------------------------------------------------------------
 
   /**
-   * Constructor for the CodeHighlighterController class
-   *
-   * @constructor
-   * @public
-   * @memberof CodeHighlighterController
+   * Constructor for the CodeHighlighterController class.
    */
   constructor(readonly service: LogService) {
     const { highlightColor, highlightStyle } = this.service.config;
@@ -63,15 +46,8 @@ export class CodeHighlighterController {
   // Public methods
 
   /**
-   * The highlightLogs method.
    * Highlight the log statements in the active editor.
-   * @function highlightLogs
-   * @public
-   * @async
-   * @memberof LogController
-   * @example
-   * controller.highlightLogs();
-   * @returns {Promise<void>} - The promise with no return value
+   * @example controller.highlightLogs();
    */
   async highlightLogs() {
     const editor = window.activeTextEditor;
@@ -99,13 +75,8 @@ export class CodeHighlighterController {
   }
 
   /**
-   * The clearHighlights method.
    * Remove the highlights from the active editor.
-   * @function removeHighlights
-   * @public
-   * @memberof LogController
-   * @example
-   * controller.clearHighlights();
+   * @example controller.clearHighlights();
    */
   clearHighlights() {
     const editor = window.activeTextEditor;
@@ -120,14 +91,9 @@ export class CodeHighlighterController {
   }
 
   /**
-   * The update method.
    * Update the decoration type object.
-   *
-   * @function update
    * @param {string} color - The color
    * @param {string} style - The style
-   * @public
-   * @memberof CodeHighlighterController
    */
   update(color: string, style: string) {
     this.decorationType = window.createTextEditorDecorationType({
@@ -138,15 +104,10 @@ export class CodeHighlighterController {
   // Private methods
 
   /**
-   * The highlight method.
    * Highlight the ranges in the editor.
-   *
-   * @function highlight
    * @param {TextEditor} editor - The text editor
    * @param {Array<{ start: number; end: number }>} ranges - The ranges
    * @param {string} hoverMessage - The hover message
-   * @public
-   * @memberof CodeHighlighterController
    */
   private highlight(
     editor: TextEditor,
@@ -163,13 +124,8 @@ export class CodeHighlighterController {
   }
 
   /**
-   * The clear method.
    * Clear the decorations in the editor.
-   *
-   * @function clear
    * @param {TextEditor} editor - The text editor
-   * @public
-   * @memberof CodeHighlighterController
    */
   private clear(editor: TextEditor) {
     editor.setDecorations(this.decorationType, []);

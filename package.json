@@ -2,7 +2,7 @@
 	"name": "vscode-code-log-plus",
 	"displayName": "CodeLog+",
 	"description": "CodeLog+ is a powerful extension for Visual Studio Code that simplifies the process of adding, managing, and customizing log statements in your code. It supports multiple programming languages and provides a user-friendly interface for inserting and editing log statements.",
-	"version": "1.8.0",
+	"version": "1.9.0",
 	"icon": "icon.png",
 	"license": "MIT",
 	"publisher": "imgildev",
@@ -441,6 +441,18 @@
 				"command": "codeLogPlus.removeLogs",
 				"when": "editorTextFocus",
 				"description": "Remove all inserted log statements (macOS)"
+			},
+			{
+				"key": "ctrl+alt+a",
+				"command": "codeLogPlus.editLogs",
+				"when": "editorTextFocus",
+				"description": "Edit selected log statement(s) (Windows & Linux)"
+			},
+			{
+				"key": "cmd+alt+a",
+				"command": "codeLogPlus.editLogs",
+				"when": "editorTextFocus",
+				"description": "Edit selected log statement(s) (macOS)"
 			},
 			{
 				"key": "ctrl+alt+k",
