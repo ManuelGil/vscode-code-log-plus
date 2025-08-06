@@ -30,5 +30,7 @@
 	"Selected logs have been commented": "Los registros seleccionados se han comentado",
 	"Selected logs have been uncommented": "Los registros seleccionados se han descomentado",
 	"Enter new log command": "Ingresa el nuevo comando de log",
-	"No new log command provided": "No se ha ingresado ningún nuevo comando de log"
+	"No new log command provided": "No se ha ingresado ningún nuevo comando de log",
+	"Select logs to process": "Selecciona los registros para procesar",
+	"Select a log to process": "Selecciona un registro para procesar"
 }

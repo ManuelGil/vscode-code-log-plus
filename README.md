@@ -14,9 +14,9 @@
 CodeLog+ accelerates debugging by providing:
 
 - Instant insertion of formatted log statements for JavaScript, Python, Java, C#, PHP, Dart, Go, C++, Ruby, and more
-- Customizable templates, prefixes, delimiters, and accessibility‑friendly modes
+- Customizable templates, prefixes, delimiters, and accessibility-friendly modes
 - Bulk operations: edit, comment/uncomment, remove, and highlight logs
-- Workspace‑wide Tree View for navigating all log statements
+- Workspace-wide Tree View for navigating all log statements
 - Progress indicators and performance optimizations for large codebases
 
 ![Animated demo of CodeLog+ in VS Code. A user places the cursor on a variable and uses a keyboard shortcut to insert a formatted log statement with file name, line number, and variable name.](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/add-log-statement.gif)
@@ -32,8 +32,12 @@ CodeLog+ accelerates debugging by providing:
     - [Insert a Log Statement](#insert-a-log-statement)
     - [JavaScript Log Output Example](#javascript-log-output-example)
     - [Python Log Output Example](#python-log-output-example)
-    - [Edit, Comment, and Remove Logs](#edit-comment-and-remove-logs)
-    - [Tree View Navigation](#tree-view-navigation)
+  - [File-Scope Log Management](#file-scope-log-management)
+    - [Edit Logs](#edit-logs)
+    - [Comment \& Uncomment Logs](#comment--uncomment-logs)
+    - [Remove Logs](#remove-logs)
+    - [Highlight \& Clear Highlights](#highlight--clear-highlights)
+  - [Workspace-Wide Log Navigator](#workspace-wide-log-navigator)
     - [Accessibility Features](#accessibility-features)
     - [Progress Indicators](#progress-indicators)
   - [Configuration Options](#configuration-options)
@@ -95,7 +99,7 @@ CodeLog+ accelerates debugging by providing:
 1. Place your cursor on a variable or function.
 2. Use the shortcut:
    - **Windows/Linux**: `Ctrl+Alt+L`
-   - **Mac**: `Cmd+Option+L`
+   - **Mac**: `⌘+Option+L`
 3. A formatted log statement will be inserted automatically.
 
 ### JavaScript Log Output Example
@@ -110,81 +114,79 @@ console.log("🔍 ~ myFile.js:25 ~ userName:", userName)
 print(f"🔍 ~ myFile.py:25 ~ userName: {userName}")
 ```
 
-### Edit, Comment, and Remove Logs
+## File-Scope Log Management
 
-CodeLog+ provides several commands to help manage log statements throughout your codebase:
+Bulk-operate on every `log` statement in the currently active file, no manual searching, no regex gymnastics. Simply open the Command Palette (`Ctrl+Shift+P` / `⌘+Shift+P`), type **CodeLog+**, and choose your action.
 
-1. **Edit Logs**: Select and modify all log statements in the current document
-   - Command: `CodeLog+: Edit logs`
-   - Shortcut:
-     - **Windows/Linux**: `Ctrl+Alt+E`
-     - **Mac**: `Cmd+Alt+E`
-   - Lets you quickly change the log method (e.g., from `console.log` to `console.error`) for selected statements.
-   - Use this to update or standardize log formats
+### Edit Logs
 
-    ![Animated demo of editing log statements in CodeLog+](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/edit-log-statement.gif)
+**Purpose:** Standardize or change log methods in one sweep.
 
-2. **Comment Logs**: Temporarily disable logs by commenting them out
-   - Command: `CodeLog+: Comment logs`
-   - Useful when you want to keep logs but disable them during testing
+- **What it does:**
+  - Converts between methods (e.g. `console.log` → `console.error` → `console.warn`)
+  - Inserts/removes custom prefixes or timestamps
+  - Wraps messages in your team's agreed format
+- **How to run:**
+  - **Windows/Linux:** `Ctrl+Alt+A`
+  - **macOS:** `⌘+Alt+A`
+- **Animated Demo:**
+  ![Edit logs demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/edit-log-statement.gif)
 
-    ![Animated demo of commenting log statements in CodeLog+](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/comment-log-statement.gif)
+### Comment & Uncomment Logs
 
-3. **Uncomment Logs**: Re-enable previously commented logs
-   - Command: `CodeLog+: Uncomment logs`
-   - Easily restore your debugging statements when needed
+**Purpose:** Temporarily mute or restore debug output without deleting code.
 
-4. **Remove Logs**: Delete all log statements in the current document
-   - Command: `CodeLog+: Remove logs`
-   - Clean up your code before committing or releasing
+- **Comment Logs:**
+  - **Windows/Linux:** `Ctrl+Alt+,`
+  - **macOS:** `⌘+Alt+,`
+  - Wraps each `log` line in a comment (e.g. `// console.log(...)`)
+- **Uncomment Logs:**
+  - **Windows/Linux:** `Ctrl+Alt+Shift+,`
+  - **macOS:** `⌘+Alt+Shift+,`
+  - Reverts commented logs back to active statements
+- **When to use:** Toggle debug noise during iterative testing or peer review.
+- **Animated Demo:**
+  ![Comment logs demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/comment-log-statement.gif)
 
-    ![Animated demo of removing log statements in CodeLog+](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/remove-log-statement.gif)
+### Remove Logs
 
-5. **Highlight Logs**: Visually highlight all log statements in the current document
-   - Command: `CodeLog+: Highlight logs`
-   - Makes logs more visible while reviewing code
+**Purpose:** Clean slate, strip out all `log` statements before merging or shipping.
 
-    ![Animated demo of highlighting log statements in CodeLog+](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/highlight-log-statement.gif)
+- **Shortcut:**
+  - Windows/Linux: `Ctrl+Alt+Shift+L`
+  - macOS: `⌘+Alt+Shift+L`
+- **Behavior:**
+  - Deletes any line containing a recognized log command
+  - Preserves surrounding code structure and formatting
+- **Animated Demo:**
+  ![Remove logs demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/remove-log-statement.gif)
 
-6. **Clear Highlights**: Remove all highlights from log statements
-   - Command: `CodeLog+: Clear highlights`
-   - Return to normal code display after reviewing logs
+### Highlight & Clear Highlights
 
-7. **Log Statements**
-   - **Settings**:
-     - `codeLogPlus.files.includedFilePatterns`: which extensions to show (e.g., `[**/*.{js,jsx,ts,tsx}]`).
-     - `codeLogPlus.files.excludedFilePatterns`: glob patterns to hide folders/files (e.g., `"**/node_modules/**"`).
-     - `codeLogPlus.files.includeFilePath`: if `true`, appends the folder path in parentheses (e.g., `layout.module.ts (src/app/...)`).
-   - **Behavior**:
-     - A tree view will be displayed in the sidebar with all log statements.
-     - Clicking a file will open it in the editor.
+**Purpose:** Visually surface every `log` statement for quick scanning, then clear highlights to restore your normal color scheme.
 
-    ![Animated demo of navigating log statements in the tree view of CodeLog+](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/tree-view.gif)
+- **Highlight Logs:**
+  - **Windows/Linux:** `Ctrl+Alt+K`
+  - **macOS:** `⌘+Alt+K`
+  - Applies a customizable decoration (e.g. wavy underline, background color) to each `log` line
+- **Clear Highlights:**
+  - **Windows/Linux:** `Ctrl+Alt+Shift+K`
+  - **macOS:** `⌘+Alt+Shift+K`
+  - Removes all decorations, returning to default syntax highlighting
+- **Animated Demo:**
+  ![Highlight logs demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/highlight-log-statement.gif)
 
-Access these commands through the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
+## Workspace-Wide Log Navigator
 
-### Tree View Navigation
+Navigate every debug statement across your entire workspace with a single sidebar panel:
 
-CodeLog+ includes a powerful tree view panel that helps you navigate through all log statements in your workspace:
+- **Hierarchical Explorer**
+  - Logs are grouped by file
+  - Collapsible nodes let you drill down to specific files
+- **Instant Jump-To-Code**
+  - Click any entry to open the file and position your cursor exactly at the log statement
 
-- **Log Explorer**: View all logs organized by file and line number
-  - Easily navigate to any log statement with a single click
-  - Automatically identifies console.log, print, and other log commands
-  - Groups logs by file for better organization
-
-- **Refresh Logs**: Update the tree view to reflect the latest changes in your code
-  - Command: `CodeLog+: Refresh list`
-  - Useful after adding or removing log statements
-
-- **Open File**: Jump directly to the file containing a specific log
-  - Command: `CodeLog+: Open file`
-  - Opens the file in the editor to view the full context
-
-- **Go to Line**: Navigate directly to a specific log statement in a file
-  - Command: `CodeLog+: Go to line`
-  - Positions the cursor at the exact line of the log statement
-
-The tree view provides a convenient way to track all your debug statements across the workspace, making it easier to manage and clean up logs before committing your code.
+![Tree view demo](https://raw.githubusercontent.com/ManuelGil/vscode-code-log-plus/main/images/tree-view.gif)
 
 ### Accessibility Features
 
@@ -235,7 +237,7 @@ CodeLog+ provides various configuration options to customize logging behavior in
 | `codeLogPlus.logCommand`                      | string  | `console.log`                                                                      | The command used for logging.                                                               |
 | `codeLogPlus.isLogMessageWrapped`             | boolean | `false`                                                                            | Determines whether log messages should be wrapped.                                          |
 | `codeLogPlus.borderWrapCharacter`             | string  | `"-"`                                                                              | Character used to draw the border in log wraps.                                             |
-| `codeLogPlus.borderWrapLength`                | number  | `20`                                                                               | Number of times the border character is repeated to create a border line.                  |
+| `codeLogPlus.borderWrapLength`                | number  | `20`                                                                               | Number of times the border character is repeated to create a border line.                   |
 | `codeLogPlus.logMessagePrefix`                | string  | `🔍`                                                                                | Prefix for log messages.                                                                    |
 | `codeLogPlus.useAccessibleLogs`               | boolean | `false`                                                                            | Replaces emoji prefixes with text alternatives for accessibility (e.g., 🔍 becomes [DEBUG]). |
 | `codeLogPlus.messageLogDelimiter`             | string  | `~`                                                                                | Delimiter for log messages.                                                                 |
@@ -329,7 +331,7 @@ By customizing these options, you can tailor CodeLog+ to fit your workflow seaml
 CodeLog+ integrates seamlessly into your development workflow:
 
 1. **Write Code**: Develop your application normally
-2. **Insert Logs**: Use the shortcut (`Ctrl+Alt+L` / `Cmd+Option+L`) to add logs at strategic points
+2. **Insert Logs**: Use the shortcut (`Ctrl+Alt+L` / `⌘+Option+L`) to add logs at strategic points
 3. **Debug**: Use the formatted logs to track execution and variable values
 4. **Clean Up**: Use the bulk operations (comment, uncomment, remove) to manage logs
 
@@ -427,15 +429,15 @@ The extension is designed with extensibility in mind, allowing for:
 
 ## Keyboard Shortcuts
 
-| Function         | Windows/Linux      | macOS             |
-| ---------------- | ------------------ | ----------------- |
-| Insert Log       | `Ctrl+Alt+L`       | `Cmd+Alt+L`       |
-| Edit Logs        | `Ctrl+Alt+E`       | `Cmd+Alt+E`       |
-| Remove All Logs  | `Ctrl+Alt+Shift+L` | `Cmd+Alt+Shift+L` |
-| Highlight Logs   | `Ctrl+Alt+K`       | `Cmd+Alt+K`       |
-| Clear Highlights | `Ctrl+Alt+Shift+K` | `Cmd+Alt+Shift+K` |
-| Comment Logs     | `Ctrl+Alt+,`       | `Cmd+Alt+,`       |
-| Uncomment Logs   | `Ctrl+Alt+Shift+,` | `Cmd+Alt+Shift+,` |
+| Function         | Windows/Linux      | macOS           |
+| ---------------- | ------------------ | --------------- |
+| Insert Log       | `Ctrl+Alt+L`       | `⌘+Alt+L`       |
+| Edit Logs        | `Ctrl+Alt+A`       | `⌘+Alt+A`       |
+| Remove All Logs  | `Ctrl+Alt+Shift+L` | `⌘+Alt+Shift+L` |
+| Highlight Logs   | `Ctrl+Alt+K`       | `⌘+Alt+K`       |
+| Clear Highlights | `Ctrl+Alt+Shift+K` | `⌘+Alt+Shift+K` |
+| Comment Logs     | `Ctrl+Alt+,`       | `⌘+Alt+,`       |
+| Uncomment Logs   | `Ctrl+Alt+Shift+,` | `⌘+Alt+Shift+,` |
 
 You can also customize these shortcuts in the VSCode settings.
 
