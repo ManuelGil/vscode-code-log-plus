@@ -1,7 +1,7 @@
 {
 	"name": "vscode-code-log-plus",
-	"displayName": "CodeLog+",
-	"description": "CodeLog+ is a powerful extension for Visual Studio Code that simplifies the process of adding, managing, and customizing log statements in your code. It supports multiple programming languages and provides a user-friendly interface for inserting and editing log statements.",
+	"displayName": "CodeLog+ - Console Log & Debug for Any Language",
+	"description": "CodeLog+ is a VS Code extension that turbocharges your debugging workflow by automating console log insertion, formatting, navigation, and cleanup across any programming language. Enjoy multi-language support, bulk log operations, tree-view explorer, accessibility-friendly modes, and performance optimizations—all in one developer-friendly tool.",
 	"version": "1.9.1",
 	"icon": "icon.png",
 	"license": "MIT",
@@ -19,6 +19,9 @@
 		"Other"
 	],
 	"keywords": [
+		"accessibility",
+		"automation",
+		"bulk log removal",
 		"code debugging",
 		"code",
 		"comment log",
@@ -60,6 +63,7 @@
 		"log level",
 		"log management",
 		"log manager",
+		"log navigator",
 		"log panel",
 		"log shortcuts",
 		"log snippet",
@@ -70,8 +74,10 @@
 		"logging",
 		"logs",
 		"lua",
+		"multi-language",
 		"perl",
 		"php",
+		"polyglot",
 		"print statement",
 		"print",
 		"println",
@@ -86,6 +92,7 @@
 		"turbo console log",
 		"typescript",
 		"uncomment log",
+		"vscode",
 		"wrap"
 	],
 	"homepage": "https://github.com/ManuelGil/vscode-code-log-plus",
@@ -409,6 +416,31 @@
 				"category": "codeLog+"
 			},
 			{
+				"command": "codeLogPlus.listLogView.openContainingFolder",
+				"title": "%codeLogPlus.listLogView.openContainingFolder.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.listLogView.revealFile",
+				"title": "%codeLogPlus.listLogView.revealFile.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.listLogView.copyPath",
+				"title": "%codeLogPlus.listLogView.copyPath.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.listLogView.gotoLineFromNode",
+				"title": "%codeLogPlus.listLogView.gotoLineFromNode.title%",
+				"category": "codeLog+"
+			},
+			{
+				"command": "codeLogPlus.listLogView.copyLogText",
+				"title": "%codeLogPlus.listLogView.copyLogText.title%",
+				"category": "codeLog+"
+			},
+			{
 				"command": "codeLogPlus.listLogView.refreshList",
 				"title": "%codeLogPlus.listLogView.refreshList.title%",
 				"category": "codeLog+",
@@ -513,7 +545,34 @@
 				{
 					"command": "codeLogPlus.listLogView.refreshList",
 					"when": "view == codeLogPlus.listLogView",
-					"group": "navigation"
+					"group": "navigation@1"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "codeLogPlus.listLogView.revealFile",
+					"when": "view == codeLogPlus.listLogView && viewItem == file",
+					"group": "navigation@1"
+				},
+				{
+					"command": "codeLogPlus.listLogView.openContainingFolder",
+					"when": "view == codeLogPlus.listLogView && viewItem == file",
+					"group": "navigation@2"
+				},
+				{
+					"command": "codeLogPlus.listLogView.copyPath",
+					"when": "view == codeLogPlus.listLogView && viewItem == file",
+					"group": "2_workspace@1"
+				},
+				{
+					"command": "codeLogPlus.listLogView.gotoLineFromNode",
+					"when": "view == codeLogPlus.listLogView && viewItem == log",
+					"group": "navigation@1"
+				},
+				{
+					"command": "codeLogPlus.listLogView.copyLogText",
+					"when": "view == codeLogPlus.listLogView && viewItem == log",
+					"group": "2_workspace@1"
 				}
 			]
 		},
@@ -550,32 +609,34 @@
 		"lint:check": "biome check --write",
 		"test": "node ./out/test/runTest.js",
 		"compodoc": "npx compodoc -p tsconfig.doc.json -d compodoc --theme readthedocs -s",
+		"l10n:check": "node scripts/check-l10n.js",
+		"nls:check": "node scripts/check-nls.js",
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
+		"@biomejs/biome": "2.2.0",
 		"@commitlint/cli": "^19.8.1",
 		"@commitlint/config-conventional": "^19.8.1",
 		"@compodoc/compodoc": "^1.1.26",
 		"@types/mocha": "^10.0.10",
-		"@types/mustache": "^4.2.5",
-		"@types/node": "^22.16.4",
-		"@types/vscode": "^1.88.0",
+		"@types/mustache": "^4.2.6",
+		"@types/node": "^24.3.0",
+		"@types/vscode": "^1.103.0",
 		"@vscode/l10n-dev": "^0.0.35",
-		"@vscode/test-cli": "^0.0.10",
+		"@vscode/test-cli": "^0.0.11",
 		"@vscode/test-electron": "^2.5.2",
 		"husky": "^9.1.7",
-		"lint-staged": "^15.5.2",
-		"mocha": "^10.8.2",
+		"lint-staged": "^16.1.5",
+		"mocha": "^11.7.1",
 		"rimraf": "^6.0.1",
-		"typescript": "^5.8.3",
+		"typescript": "^5.9.2",
 		"vscode-test": "^1.6.1"
 	},
 	"dependencies": {
 		"fast-glob": "^3.3.3",
 		"ignore": "^7.0.5",
 		"mustache": "^4.2.0",
-		"p-limit": "^6.2.0",
+		"p-limit": "^7.1.0",
 		"vscode-marketplace-client": "^1.1.0"
 	}
 }

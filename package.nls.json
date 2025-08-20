@@ -35,5 +35,10 @@
 	"codeLogPlus.uncommentLogs.title": "Uncomment logs",
 	"codeLogPlus.listLogView.title": "Log Statements",
 	"codeLogPlus.listLogView.refreshList.title": "Refresh log list",
-	"codeLogPlus.listLogView.welcomeMessage": "To effectively capture files, ensure you include the file type within the workspace settings.\n[Open Workspace Setting](command:workbench.action.openWorkspaceSettingsFile)\nTo learn more about how to use the Starter Kit [read our docs](https://github.com/ManuelGil/vscode-code-log-plus)."
+	"codeLogPlus.listLogView.welcomeMessage": "To effectively capture files, ensure you include the file type within the workspace settings.\n[Open Workspace Setting](command:workbench.action.openWorkspaceSettingsFile)\nTo learn more about how to use the Starter Kit [read our docs](https://github.com/ManuelGil/vscode-code-log-plus).",
+	"codeLogPlus.listLogView.openContainingFolder.title": "Open Containing Folder",
+	"codeLogPlus.listLogView.revealFile.title": "Reveal File",
+	"codeLogPlus.listLogView.copyPath.title": "Copy Path",
+	"codeLogPlus.listLogView.gotoLineFromNode.title": "Go to Line",
+	"codeLogPlus.listLogView.copyLogText.title": "Copy Log Text"
 }

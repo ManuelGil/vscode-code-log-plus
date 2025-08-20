@@ -1,1 +1,1 @@
-export * from './list-log.providers';
+export * from './list-log.provider';

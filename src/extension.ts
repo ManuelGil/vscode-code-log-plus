@@ -16,8 +16,8 @@ import {
   ListLogController,
   LogController,
 } from './app/controllers';
-import { LogService } from './app/services';
 import { ListLogProvider } from './app/providers';
+import { LogService } from './app/services';
 
 /**
  * Helper function to check if the extension is enabled
@@ -118,55 +118,62 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.workspace.getConfiguration(EXTENSION_ID, resource?.uri),
   );
 
+  // Will be assigned after services are initialized; used in config change handler
+  let codeHighlightController: CodeHighlighterController | undefined;
+
   // Watch for changes in the configuration
-  vscode.workspace.onDidChangeConfiguration((event) => {
-    const workspaceConfig = vscode.workspace.getConfiguration(
-      EXTENSION_ID,
-      resource?.uri,
-    );
-
-    if (event.affectsConfiguration(`${EXTENSION_ID}.enable`, resource?.uri)) {
-      const isEnabled = workspaceConfig.get<boolean>('enable');
-
-      config.update(workspaceConfig);
-
-      if (isEnabled) {
-        const message = vscode.l10n.t(
-          'The {0} extension is now enabled and ready to use',
-          [EXTENSION_DISPLAY_NAME],
-        );
-        vscode.window.showInformationMessage(message);
-      } else {
-        const message = vscode.l10n.t('The {0} extension is now disabled', [
-          EXTENSION_DISPLAY_NAME,
-        ]);
-        vscode.window.showInformationMessage(message);
-      }
-    }
-
-    if (
-      event.affectsConfiguration(
-        `${EXTENSION_ID}.highlightColor`,
+  const disposableConfigChange = vscode.workspace.onDidChangeConfiguration(
+    (event) => {
+      const workspaceConfig = vscode.workspace.getConfiguration(
+        EXTENSION_ID,
         resource?.uri,
-      ) ||
-      event.affectsConfiguration(
-        `${EXTENSION_ID}.highlightStyle`,
-        resource?.uri,
-      )
-    ) {
-      config.update(workspaceConfig);
-
-      // Update the highlighter instance
-      codeHighlightController.update(
-        config.highlightColor,
-        config.highlightStyle,
       );
-    }
 
-    if (event.affectsConfiguration(EXTENSION_ID, resource?.uri)) {
-      config.update(workspaceConfig);
-    }
-  });
+      if (event.affectsConfiguration(`${EXTENSION_ID}.enable`, resource?.uri)) {
+        const isEnabled = workspaceConfig.get<boolean>('enable');
+
+        config.update(workspaceConfig);
+
+        if (isEnabled) {
+          const message = vscode.l10n.t(
+            'The {0} extension is now enabled and ready to use',
+            [EXTENSION_DISPLAY_NAME],
+          );
+          vscode.window.showInformationMessage(message);
+        } else {
+          const message = vscode.l10n.t('The {0} extension is now disabled', [
+            EXTENSION_DISPLAY_NAME,
+          ]);
+          vscode.window.showInformationMessage(message);
+        }
+      }
+
+      if (
+        event.affectsConfiguration(
+          `${EXTENSION_ID}.highlightColor`,
+          resource?.uri,
+        ) ||
+        event.affectsConfiguration(
+          `${EXTENSION_ID}.highlightStyle`,
+          resource?.uri,
+        )
+      ) {
+        config.update(workspaceConfig);
+
+        // Update the highlighter instance if initialized
+        codeHighlightController?.update(
+          config.highlightColor,
+          config.highlightStyle,
+        );
+      }
+
+      if (event.affectsConfiguration(EXTENSION_ID, resource?.uri)) {
+        config.update(workspaceConfig);
+      }
+    },
+  );
+
+  context.subscriptions.push(disposableConfigChange);
 
   // -----------------------------------------------------------------
   // Get version of the extension
@@ -397,7 +404,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // -----------------------------------------------------------------
 
   // Register the CodeHighlightController
-  const codeHighlightController = new CodeHighlighterController(logService);
+  codeHighlightController = new CodeHighlighterController(logService);
 
   const disposableHighlightLogs = vscode.commands.registerCommand(
     `${EXTENSION_ID}.highlightLogs`,
@@ -482,20 +489,100 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  const disposableRevealFile = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.revealFile`,
+    (uri) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.revealFile(uri);
+    },
+  );
+
+  const disposableCopyPath = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.copyPath`,
+    (uri) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.copyPath(uri);
+    },
+  );
+
+  const disposableOpenContainingFolder = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.openContainingFolder`,
+    (uri) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.openContainingFolder(uri);
+    },
+  );
+
+  const disposableGotoLineFromNode = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.gotoLineFromNode`,
+    (uri) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.gotoLineFromNode(uri);
+    },
+  );
+
+  const disposableCopyLogText = vscode.commands.registerCommand(
+    `${EXTENSION_ID}.listLogView.copyLogText`,
+    async (uri) => {
+      if (!isExtensionEnabled(config)) {
+        return;
+      }
+
+      listLogController.copyLogText(uri);
+    },
+  );
+
   context.subscriptions.push(
     listLogTreeView,
+    listLogProvider,
     disposableRefreshList,
     disposableOpenFile,
     disposableGotoLine,
+    disposableRevealFile,
+    disposableCopyPath,
+    disposableOpenContainingFolder,
+    disposableGotoLineFromNode,
+    disposableCopyLogText,
   );
 
   // -----------------------------------------------------------------
   // Register ListLogProvider and ListMethodsProvider events
   // -----------------------------------------------------------------
 
-  vscode.workspace.onDidSaveTextDocument(() => {
-    listLogProvider.refresh();
+  // Debounced refresh on save to avoid heavy recomputations
+  let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  const scheduleRefresh = () => {
+    if (refreshTimeout) {
+      clearTimeout(refreshTimeout);
+    }
+    refreshTimeout = setTimeout(() => {
+      listLogProvider.refresh();
+    }, 250);
+  };
+
+  const onSaveDisposable = vscode.workspace.onDidSaveTextDocument(() => {
+    scheduleRefresh();
   });
+
+  // Ensure timer and listener are cleaned up
+  const refreshTimerDisposable = {
+    dispose: () => refreshTimeout && clearTimeout(refreshTimeout),
+  };
+
+  context.subscriptions.push(onSaveDisposable, refreshTimerDisposable);
 }
 
 /**

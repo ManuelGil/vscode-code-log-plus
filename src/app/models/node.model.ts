@@ -45,6 +45,16 @@ export class NodeModel extends TreeItem {
    */
   children?: NodeModel[];
 
+  /**
+   * Optional zero-based line number for log entries.
+   * @type {number | undefined}
+   * @public
+   * @memberof NodeModel
+   * @example
+   * node.line = 12;
+   */
+  line?: number;
+
   // -----------------------------------------------------------------
   // Constructor
   // -----------------------------------------------------------------

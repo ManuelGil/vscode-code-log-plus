@@ -3,9 +3,9 @@ import * as mustache from 'mustache';
 import { ExtensionConfig } from '../configs';
 import { escapeRegExp } from '../helpers';
 import {
-  LogTemplate,
   defaultLogCommand,
   defaultTemplates,
+  LogTemplate,
   supportedLanguages,
 } from '../types';
 

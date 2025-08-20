@@ -3,13 +3,15 @@ import { existsSync, readFileSync } from 'fs';
 import * as ignore from 'ignore';
 import { join, relative } from 'path';
 import {
+  commands,
+  env,
+  l10n,
   Position,
   Range,
   Selection,
   TextEditorRevealType,
   ThemeIcon,
   Uri,
-  l10n,
   window,
   workspace,
 } from 'vscode';
@@ -100,19 +102,21 @@ export class ListLogController {
           filename += folder ? ` (${folder})` : ' (root)';
         }
 
-        nodes.push(
-          new NodeModel(
-            filename ?? 'Untitled',
-            new ThemeIcon('file'),
-            {
-              command: `${EXTENSION_ID}.listLogView.openFile`,
-              title: 'Open Preview',
-              arguments: [file],
-            },
-            file,
-            file.fsPath,
-          ),
+        // Use resourceUri-based icon (native file icon) and attach helpful tooltip/context
+        const node = new NodeModel(
+          filename ?? 'Untitled',
+          undefined,
+          {
+            command: `${EXTENSION_ID}.listLogView.openFile`,
+            title: 'Open Preview',
+            arguments: [file],
+          },
+          file,
+          'file',
         );
+        node.id = file.fsPath;
+        node.tooltip = file.fsPath;
+        nodes.push(node);
       }
 
       return nodes;
@@ -147,6 +151,138 @@ export class ListLogController {
         editor.selection = new Selection(pos, pos);
       });
     });
+  }
+
+  /**
+   * Reveals the given resource in the VS Code Explorer.
+   * Accepts either a Uri or a NodeModel.
+   * @param target - Uri or NodeModel representing the file to reveal.
+   */
+  async revealFile(target: Uri | NodeModel): Promise<void> {
+    const uri = this.resolveUri(target);
+
+    if (!uri) {
+      window.showErrorMessage(l10n.t('No file to reveal'));
+      return;
+    }
+
+    await commands.executeCommand('revealInExplorer', uri);
+  }
+
+  /**
+   * Opens the containing folder for the given resource in the OS file explorer.
+   * Accepts either a Uri or a NodeModel.
+   * @param target - Uri or NodeModel representing the file.
+   */
+  async openContainingFolder(target: Uri | NodeModel): Promise<void> {
+    const uri = this.resolveUri(target);
+
+    if (!uri) {
+      window.showErrorMessage(l10n.t('No file to reveal in OS'));
+      return;
+    }
+
+    await commands.executeCommand('revealFileInOS', uri);
+  }
+
+  /**
+   * Copies the absolute path of the given resource to the clipboard.
+   * Accepts either a Uri or a NodeModel.
+   * @param target - Uri or NodeModel representing the file.
+   */
+  async copyPath(target: Uri | NodeModel): Promise<void> {
+    const uri = this.resolveUri(target);
+
+    if (!uri) {
+      window.showErrorMessage(l10n.t('No file path to copy'));
+      return;
+    }
+
+    await env.clipboard.writeText(uri.fsPath);
+
+    window.showInformationMessage(l10n.t('Path copied to clipboard'));
+  }
+
+  /**
+   * Opens a file and navigates to the line stored on the provided NodeModel.
+   * If a Uri is passed, attempts to open the file without navigation.
+   * @param target - NodeModel with line metadata or a Uri.
+   */
+  async gotoLineFromNode(target: NodeModel | Uri): Promise<void> {
+    const { uri, line } = this.resolveUriAndLine(target) ?? {};
+
+    if (!uri) {
+      window.showErrorMessage(l10n.t('No file to navigate'));
+      return;
+    }
+
+    if (typeof line === 'number') {
+      this.gotoLine(uri, line);
+    } else {
+      this.openFile(uri);
+    }
+  }
+
+  /**
+   * Copies the text of the log line represented by the given NodeModel to the clipboard.
+   * If only a Uri is provided or no line is available, shows an informational message.
+   * @param target - NodeModel with line metadata or a Uri.
+   */
+  async copyLogText(target: NodeModel | Uri): Promise<void> {
+    const data = this.resolveUriAndLine(target);
+
+    if (!data?.uri) {
+      window.showErrorMessage(l10n.t('No file to copy from'));
+      return;
+    }
+
+    if (typeof data.line !== 'number') {
+      window.showInformationMessage(l10n.t('No line information available'));
+      return;
+    }
+
+    try {
+      const document = await workspace.openTextDocument(data.uri);
+      const lineText = document.lineAt(data.line).text.trimEnd();
+
+      await env.clipboard.writeText(lineText);
+
+      window.showInformationMessage(l10n.t('Log text copied to clipboard'));
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : l10n.t('Unknown error while copying log text');
+      window.showErrorMessage(message);
+    }
+  }
+
+  /**
+   * Resolves a Uri from a Uri or NodeModel.
+   */
+  private resolveUri(target: Uri | NodeModel): Uri | undefined {
+    if (target instanceof Uri) {
+      return target;
+    }
+
+    return target?.resourceUri;
+  }
+
+  /**
+   * Resolves Uri and optional line number from a Uri or NodeModel.
+   */
+  private resolveUriAndLine(
+    target: Uri | NodeModel,
+  ): { uri: Uri; line?: number } | undefined {
+    if (target instanceof Uri) {
+      return { uri: target };
+    }
+
+    if (target?.resourceUri) {
+      return { uri: target.resourceUri, line: target.line };
+    }
+
+    return undefined;
   }
 
   /**

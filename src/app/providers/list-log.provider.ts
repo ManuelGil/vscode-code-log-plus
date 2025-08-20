@@ -1,4 +1,3 @@
-import pLimit from 'p-limit';
 import {
   Event,
   EventEmitter,
@@ -83,6 +82,11 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
   private _cachePromise: Promise<NodeModel[] | undefined> | undefined =
     undefined;
 
+  /**
+   * Version token to invalidate in-flight cache loads on refresh.
+   */
+  private _version = 0;
+
   // Public properties
   /**
    * The onDidChangeTreeData event.
@@ -156,6 +160,10 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
    * @see https://code.visualstudio.com/api/references/vscode-api#TreeDataProvider
    */
   getChildren(element?: NodeModel): ProviderResult<NodeModel[]> {
+    if (this._isDisposed) {
+      return [];
+    }
+
     if (element) {
       return element.children;
     }
@@ -168,7 +176,12 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
       return this._cachePromise;
     }
 
+    const versionAtStart = this._version;
     this._cachePromise = this.getListLogs().then((nodes) => {
+      // Ignore if disposed or a newer refresh occurred meanwhile
+      if (this._isDisposed || versionAtStart !== this._version) {
+        return this._cachedNodes ?? [];
+      }
       this._cachedNodes = nodes;
       this._cachePromise = undefined;
       return nodes;
@@ -189,6 +202,11 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
    * @returns {void} - No return value
    */
   refresh(): void {
+    if (this._isDisposed) {
+      return;
+    }
+
+    this._version++;
     this._cachedNodes = undefined;
     this._cachePromise = undefined;
     this._onDidChangeTreeData.fire();
@@ -206,16 +224,14 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
    * @returns {void} - No return value
    */
   dispose(): void {
-    this._onDidChangeTreeData.dispose();
     if (this._isDisposed) {
       return;
     }
 
     this._isDisposed = true;
-
-    if (this._onDidChangeTreeData) {
-      this._onDidChangeTreeData.dispose();
-    }
+    this._cachedNodes = undefined;
+    this._cachePromise = undefined;
+    this._onDidChangeTreeData.dispose();
   }
 
   // Private methods
@@ -242,6 +258,7 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
     const escapedCommand = escapeRegExp(resolvedCommand);
     const logPattern = new RegExp(`${escapedCommand}\\s*\\(`);
 
+    const { default: pLimit } = await import('p-limit');
     const limit = pLimit(2);
 
     await Promise.all(
@@ -260,21 +277,35 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
               const text = document.lineAt(i).text;
 
               if (logPattern.test(text)) {
-                children.push(
-                  new NodeModel(
-                    text.trim(),
-                    new ThemeIcon('debug-breakpoint-log'),
-                    {
-                      command: `${EXTENSION_ID}.listLogView.gotoLine`,
-                      title: text.trim(),
-                      arguments: [file.resourceUri, i],
-                    },
-                  ),
+                const lineNumber = i + 1; // Display is 1-based
+                const child = new NodeModel(
+                  text.trim(),
+                  new ThemeIcon('debug-breakpoint-log'),
+                  {
+                    command: `${EXTENSION_ID}.listLogView.gotoLine`,
+                    title: text.trim(),
+                    arguments: [file.resourceUri, i],
+                  },
+                  file.resourceUri,
+                  'log',
                 );
+                child.description = `Ln ${lineNumber}`;
+                child.tooltip = `${workspace.asRelativePath(
+                  file.resourceUri,
+                )}:${lineNumber}\n${text.trim()}`;
+                child.line = i;
+                children.push(child);
               }
             }
 
             file.setChildren(children);
+            // Attach quick context and counts to file node
+            const count = children.length;
+            file.description =
+              count > 0 ? `${count} log${count === 1 ? '' : 's'}` : undefined;
+            file.tooltip = `${file.resourceUri.fsPath}${
+              count > 0 ? `\n${count} log${count === 1 ? '' : 's'}` : ''
+            }`;
           } catch (error) {
             console.error(
               `Error reading file ${file.resourceUri?.fsPath}:`,

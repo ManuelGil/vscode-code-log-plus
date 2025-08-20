@@ -35,5 +35,10 @@
 	"codeLogPlus.uncommentLogs.title": "Descomentar registros",
 	"codeLogPlus.listLogView.title": "Declaraciones de Registro",
 	"codeLogPlus.listLogView.refreshList.title": "Actualizar lista de registros",
-	"codeLogPlus.listLogView.welcomeMessage": "Para capturar archivos de manera efectiva, asegúrese de incluir el tipo de archivo dentro de la configuración del espacio de trabajo.\n[Abrir configuración del espacio de trabajo](command:workbench.action.openWorkspaceSettingsFile)\nPara aprender más sobre cómo usar el Starter Kit [lea nuestra documentación](https://github.com/ManuelGil/vscode-code-log-plus)."
+	"codeLogPlus.listLogView.welcomeMessage": "Para capturar archivos de manera efectiva, asegúrese de incluir el tipo de archivo dentro de la configuración del espacio de trabajo.\n[Abrir configuración del espacio de trabajo](command:workbench.action.openWorkspaceSettingsFile)\nPara aprender más sobre cómo usar el Starter Kit [lea nuestra documentación](https://github.com/ManuelGil/vscode-code-log-plus).",
+	"codeLogPlus.listLogView.openContainingFolder.title": "Abrir carpeta contenedora",
+	"codeLogPlus.listLogView.revealFile.title": "Mostrar archivo",
+	"codeLogPlus.listLogView.copyPath.title": "Copiar ruta",
+	"codeLogPlus.listLogView.gotoLineFromNode.title": "Ir a la línea",
+	"codeLogPlus.listLogView.copyLogText.title": "Copiar texto del registro"
 }

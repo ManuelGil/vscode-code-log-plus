@@ -1,5 +1,7 @@
 import {
+  commands,
   DocumentSymbol,
+  l10n,
   Position,
   ProgressLocation,
   Range,
@@ -7,8 +9,6 @@ import {
   SymbolKind,
   TextDocument,
   TextEditor,
-  commands,
-  l10n,
   window,
   workspace,
 } from 'vscode';

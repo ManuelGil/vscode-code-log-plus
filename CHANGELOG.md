@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2025-08-20
+
+### Added
+
+- Add new commands for log file management: open containing folder, reveal file, copy path, go to line, and copy log text
+
+### Changed
+
+- Update extension name and description for better clarity and appeal
+- Improve localization support with new keys in `package.nls.json` and `package.nls.es.json`
+- Introduce scripts for localization checks to ensure all keys are present in bundles
+- Refactor `ListLogProvider` to improve performance and maintainability
+- Enhance `ListLogController` with new methods for file operations
+- Update dependencies to their latest versions for better performance and security
+- Add optional line number property to `NodeModel` for better log entry management
+- Clean up code and improve documentation throughout the extension
+
 ## [1.9.1] - 2025-08-06
 
 ### Changed
@@ -122,7 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.1...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.1...v1.10.0
 [1.9.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.7.0...v1.8.0

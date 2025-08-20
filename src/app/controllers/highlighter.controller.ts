@@ -1,8 +1,8 @@
 import {
+  l10n,
   Range,
   TextEditor,
   TextEditorDecorationType,
-  l10n,
   window,
 } from 'vscode';
 

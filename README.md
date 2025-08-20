@@ -99,7 +99,7 @@ CodeLog+ accelerates debugging by providing:
 1. Place your cursor on a variable or function.
 2. Use the shortcut:
    - **Windows/Linux**: `Ctrl+Alt+L`
-   - **Mac**: `⌘+Option+L`
+   - **Mac**: `⌘+Alt+L`
 3. A formatted log statement will be inserted automatically.
 
 ### JavaScript Log Output Example
