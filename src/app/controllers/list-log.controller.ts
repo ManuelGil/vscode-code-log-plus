@@ -1,6 +1,6 @@
-import * as FastGlob from 'fast-glob';
+import FastGlob from 'fast-glob';
 import { existsSync, readFileSync } from 'fs';
-import * as ignore from 'ignore';
+import ignore from 'ignore';
 import { join, relative } from 'path';
 import {
   commands,
