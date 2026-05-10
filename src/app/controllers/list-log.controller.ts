@@ -10,7 +10,6 @@ import {
   Range,
   Selection,
   TextEditorRevealType,
-  ThemeIcon,
   Uri,
   window,
   workspace,
@@ -357,9 +356,7 @@ export class ListLogController {
           ? { message: error.message, stack: error.stack }
           : { message: String(error) };
 
-      const message = l10n.t('Error finding files: {0}', [
-        errorDetails.message,
-      ]);
+      const message = l10n.t('Error finding files: {0}', errorDetails.message);
       window.showErrorMessage(message);
 
       return [];

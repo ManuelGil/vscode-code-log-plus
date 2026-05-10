@@ -1,9 +1,6 @@
 # CodeLog+
 
-[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/imgildev.vscode-code-log-plus?style=for-the-badge&label=VS%20Marketplace&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-code-log-plus)
-[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/imgildev.vscode-code-log-plus?style=for-the-badge&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-code-log-plus)
-[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/imgildev.vscode-code-log-plus?style=for-the-badge&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-code-log-plus)
-[![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/imgildev.vscode-code-log-plus?style=for-the-badge&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-code-log-plus&ssr=false#review-details)
+[![GitHub package.json version](https://img.shields.io/github/package-json/v/ManuelGil/vscode-code-log-plus?style=for-the-badge&logo=github)](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-code-log-plus)
 [![GitHub Repo stars](https://img.shields.io/github/stars/ManuelGil/vscode-code-log-plus?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-code-log-plus)
 [![GitHub license](https://img.shields.io/github/license/ManuelGil/vscode-code-log-plus?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-code-log-plus/blob/main/LICENSE)
 
@@ -116,7 +113,9 @@ print(f"🔍 ~ myFile.py:25 ~ userName: {userName}")
 
 ## File-Scope Log Management
 
-Bulk-operate on every `log` statement in the currently active file, no manual searching, no regex gymnastics. Simply open the Command Palette (`Ctrl+Shift+P` / `⌘+Shift+P`), type **CodeLog+**, and choose your action.
+Bulk-operate on every `log` statement in the currently active file, no manual searching, no regex gymnastics. Simply open the Command Palette (`Ctrl+Shift+P` / `⌘+Shift+P`), type **CodeLog+**, and choose your action. Log operations can now target the current selection, current function, or entire file.
+
+**Note:** Log operations now prioritize the active editor selection when text is selected. If no selection exists, all logs in the file are processed as usual.
 
 ### Edit Logs
 

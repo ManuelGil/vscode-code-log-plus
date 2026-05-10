@@ -1,4 +1,4 @@
-import * as mustache from 'mustache';
+import mustache from 'mustache';
 
 import { ExtensionConfig } from '../configs';
 import { escapeRegExp } from '../helpers';

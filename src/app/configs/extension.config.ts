@@ -48,6 +48,12 @@ export class ExtensionConfig {
   enable: boolean;
 
   /**
+   * The currently selected workspace folder. This can be used to scope the extension's operations to a specific folder in a multi-root workspace.
+   * @example console.log(config.workspaceSelection);
+   */
+  workspaceSelection!: string | undefined;
+
+  /**
    * Default language to be used for logging.
    * @example console.log(config.defaultLanguage);
    */

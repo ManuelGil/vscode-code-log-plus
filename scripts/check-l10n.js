@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-/*
-  JSON Flow - i18n verification script
-  - Scans src/ and webview/ for occurrences of l10n.t('...') or vscode.l10n.t('...')
-  - Compares used keys with keys present in l10n/bundle.l10n.*.json
-  - Reports missing and unused keys by bundle
-  - Exits with code 1 if any missing keys are found
-*/
-
 const fs = require('fs');
 const path = require('path');
 const fg = require('fast-glob');
@@ -22,9 +14,6 @@ const L10N_DIR = path.join(root, 'l10n');
 function collectUsedKeys() {
   const patterns = [
     'src/**/*.ts',
-    'src/**/*.tsx',
-    'webview/**/*.ts',
-    'webview/**/*.tsx',
   ];
   const entries = fg.sync(patterns, { cwd: root, dot: false, absolute: true });
 

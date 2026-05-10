@@ -16,6 +16,9 @@ import {
 import { LogService } from '../services';
 import { LogEntry } from '../types';
 
+type LogScope = 'selection' | 'function' | 'file';
+type RawLog = Pick<LogEntry, 'start' | 'end' | 'line' | 'preview' | 'fullText'>;
+
 /**
  * Controller for handling log-related commands.
  */
@@ -125,19 +128,31 @@ export class LogController {
    * Removes selected log statements from the active editor.
    */
   async removeLogs(): Promise<void> {
-    const selectedLogs = await this.findAndSelectLogs(true);
+    const editor = window.activeTextEditor;
+    if (!this.validateEditor(editor)) {
+      return;
+    }
+
+    const scope = await this.pickLogScope();
+    if (!scope) {
+      return;
+    }
+
+    const selectedLogs = await this.findAndSelectLogs(true, scope);
     if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const editor = window.activeTextEditor!;
-    await editor.edit((editBuilder) => {
+    const activeEditor = window.activeTextEditor!;
+    await activeEditor.edit((editBuilder) => {
       for (const log of selectedLogs) {
-        const rangeIncludingNewline = new Range(
-          log.range.start,
-          editor.document.lineAt(log.range.end.line + 1).range.start,
-        );
-        editBuilder.delete(rangeIncludingNewline);
+        const line = activeEditor.document.lineAt(log.range.start.line);
+        const range =
+          line.lineNumber < activeEditor.document.lineCount - 1
+            ? line.rangeIncludingLineBreak
+            : line.range;
+
+        editBuilder.delete(range);
       }
     });
   }
@@ -146,15 +161,25 @@ export class LogController {
    * Comments out selected log statements in the active editor.
    */
   async commentLogs(): Promise<void> {
-    const selectedLogs = await this.findAndSelectLogs(true);
+    const editor = window.activeTextEditor;
+    if (!this.validateEditor(editor)) {
+      return;
+    }
+
+    const scope = await this.pickLogScope();
+    if (!scope) {
+      return;
+    }
+
+    const selectedLogs = await this.findAndSelectLogs(true, scope);
     if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const editor = window.activeTextEditor!;
-    const commentToken = this.getCommentToken(editor.document.languageId);
+    const activeEditor = window.activeTextEditor!;
+    const commentToken = this.getCommentToken(activeEditor.document.languageId);
 
-    await editor.edit((editBuilder) => {
+    await activeEditor.edit((editBuilder) => {
       for (const log of selectedLogs) {
         if (!log.isCommented) {
           editBuilder.insert(log.range.start, commentToken);
@@ -167,18 +192,28 @@ export class LogController {
    * Uncomments selected log statements in the active editor.
    */
   async uncommentLogs(): Promise<void> {
-    const selectedLogs = await this.findAndSelectLogs(true);
+    const editor = window.activeTextEditor;
+    if (!this.validateEditor(editor)) {
+      return;
+    }
+
+    const scope = await this.pickLogScope();
+    if (!scope) {
+      return;
+    }
+
+    const selectedLogs = await this.findAndSelectLogs(true, scope);
     if (!selectedLogs || selectedLogs.length === 0) {
       return;
     }
 
-    const editor = window.activeTextEditor!;
-    const commentToken = this.getCommentToken(editor.document.languageId);
+    const activeEditor = window.activeTextEditor!;
+    const commentToken = this.getCommentToken(activeEditor.document.languageId);
 
-    await editor.edit((editBuilder) => {
+    await activeEditor.edit((editBuilder) => {
       for (const log of selectedLogs) {
         if (log.isCommented) {
-          const line = editor.document.lineAt(log.range.start.line);
+          const line = activeEditor.document.lineAt(log.range.start.line);
           const lineText = line.text;
           const indentMatch = lineText.match(/^(\s*)/);
           const indent = indentMatch ? indentMatch[1] : '';
@@ -223,6 +258,22 @@ export class LogController {
       return null;
     }
     return text;
+  }
+
+  /**
+   * Gets the document symbols for the active document.
+   * @param document - The text document.
+   * @returns The document symbols.
+   */
+  private async getDocumentSymbols(
+    document: TextDocument,
+  ): Promise<DocumentSymbol[]> {
+    const symbols = (await commands.executeCommand(
+      'vscode.executeDocumentSymbolProvider',
+      document.uri,
+    )) as DocumentSymbol[] | undefined;
+
+    return symbols ?? [];
   }
 
   /**
@@ -284,10 +335,12 @@ export class LogController {
   /**
    * Finds and allows the user to select log entries in the active editor.
    * @param canPickMany - Whether the user can select multiple logs.
+   * @param scope - Optional scope to limit log selection.
    * @returns The selected log entries or null.
    */
   private async findAndSelectLogs(
     canPickMany: boolean,
+    scope?: LogScope,
   ): Promise<LogEntry[] | null> {
     const editor = window.activeTextEditor;
     if (!this.validateEditor(editor)) {
@@ -325,8 +378,33 @@ export class LogController {
       return null;
     }
 
+    let logsToProcess = rawLogs;
+    const symbols =
+      scope === 'function' ? await this.getDocumentSymbols(document) : [];
+
+    if (scope) {
+      const scopeRange = this.getScopeRange(editor, scope, symbols);
+
+      if (scopeRange) {
+        const scopeStart = document.offsetAt(scopeRange.start);
+        const scopeEnd = document.offsetAt(scopeRange.end);
+
+        logsToProcess = rawLogs.filter(
+          (log) => log.start >= scopeStart && log.end <= scopeEnd,
+        );
+
+        if (!logsToProcess.length) {
+          window.showInformationMessage(
+            l10n.t('No logs found in the selected scope'),
+          );
+
+          return null;
+        }
+      }
+    }
+
     const logs: LogEntry[] = await Promise.all(
-      rawLogs.map(async (rawLog) => {
+      logsToProcess.map(async (rawLog) => {
         const range = new Range(
           document.positionAt(rawLog.start),
           document.positionAt(rawLog.end),
@@ -375,6 +453,54 @@ export class LogController {
     return Array.isArray(selectedPicks)
       ? selectedPicks.map((p) => p.log)
       : [selectedPicks.log];
+  }
+
+  /**
+   * Prompts for the log scope to use.
+   * @returns The selected scope or null if cancelled.
+   */
+  private async pickLogScope(): Promise<LogScope | null> {
+    const selectedScope = await window.showQuickPick(
+      [
+        { label: l10n.t('Selection'), value: 'selection' as const },
+        { label: l10n.t('Function'), value: 'function' as const },
+        { label: l10n.t('File'), value: 'file' as const },
+      ],
+      {
+        placeHolder: l10n.t('Select log scope'),
+        canPickMany: false,
+      },
+    );
+
+    return selectedScope?.value ?? null;
+  }
+
+  /**
+   * Gets the range for the selected scope.
+   * @param editor - The active editor.
+   * @param scope - The selected scope.
+   * @returns The range for the scope, or undefined when it falls back to the full file.
+   */
+  private getScopeRange(
+    editor: TextEditor,
+    scope: LogScope,
+    symbols: DocumentSymbol[] = [],
+  ): Range | undefined {
+    switch (scope) {
+      case 'selection':
+        return editor.selection.isEmpty ? undefined : editor.selection;
+
+      case 'function': {
+        const symbol =
+          this.findFunctionSymbol(symbols, editor.selection.active) ??
+          this.findFunctionSymbol(symbols, editor.selection.start);
+
+        return symbol?.range;
+      }
+
+      default:
+        return undefined;
+    }
   }
 
   /**

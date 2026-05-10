@@ -25,6 +25,18 @@ export const EXTENSION_DISPLAY_NAME: string = 'CodeLog+';
 export const USER_PUBLISHER: string = 'imgildev';
 
 /**
+ * The user name of the extension author.
+ * @example console.log(USER_NAME);
+ */
+export const USER_NAME = 'ManuelGil';
+
+/**
+ * The repository URL of the extension.
+ * @example console.log(REPOSITORY_URL);
+ */
+export const REPOSITORY_URL: string = `https://github.com/${USER_NAME}/${EXTENSION_NAME}`;
+
+/**
  * The default value for the enable setting.
  * @example console.log(DEFAULT_ENABLE_SETTING);
  */
