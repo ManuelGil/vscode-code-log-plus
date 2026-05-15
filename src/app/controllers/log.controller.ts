@@ -39,44 +39,63 @@ export class LogController {
     }
 
     const document = editor.document;
-    const selection = editor.selection;
-    const lineNumber = selection.end.line;
-    const cursorPosition = selection.active;
-    const rangeUnderCursor = document.getWordRangeAtPosition(cursorPosition);
-    const wordUnderCursor = rangeUnderCursor
-      ? document.getText(rangeUnderCursor)
-      : '';
-    const indent = ' '.repeat(
-      document.lineAt(lineNumber).firstNonWhitespaceCharacterIndex,
-    );
 
-    const functionName = await this.extractFunctionName(
-      document,
-      selection.start,
-    );
-    const variableName =
-      document.getText(selection).trim() || wordUnderCursor || 'variable';
+    // Support multiple selections (multi-cursor). Build insertion snippets
+    // for each selection and apply them in descending line order to avoid
+    // offset issues when inserting multiple times.
+    const selections = editor.selections;
+    const insertions: Array<{
+      lineNumber: number;
+      snippet: string;
+    }> = [];
 
-    const logSnippet = this.service.generateLogSnippet(
-      indent,
-      workspace.asRelativePath(document.fileName),
-      functionName,
-      variableName,
-      lineNumber + 1,
-      document.languageId,
-    );
+    for (const sel of selections) {
+      const lineNumber = sel.end.line;
+      const cursorPosition = sel.active;
+      const rangeUnderCursor = document.getWordRangeAtPosition(cursorPosition);
+      const wordUnderCursor = rangeUnderCursor
+        ? document.getText(rangeUnderCursor)
+        : '';
+      const indent = ' '.repeat(
+        document.lineAt(lineNumber).firstNonWhitespaceCharacterIndex,
+      );
 
-    const insertPosition = new Position(lineNumber + 1, 0);
+      const functionName = await this.extractFunctionName(document, sel.start);
+      const variableName =
+        document.getText(sel).trim() || wordUnderCursor || 'variable';
+
+      const logSnippet = this.service.generateLogSnippet(
+        indent,
+        workspace.asRelativePath(document.fileName),
+        functionName,
+        variableName,
+        lineNumber + 1,
+        document.languageId,
+      );
+
+      insertions.push({ lineNumber, snippet: logSnippet });
+    }
+
+    // Sort descending by line so that inserts do not affect positions of earlier ones.
+    insertions.sort((a, b) => b.lineNumber - a.lineNumber);
+
     await editor.edit((editBuilder) => {
-      editBuilder.insert(insertPosition, logSnippet);
+      for (const ins of insertions) {
+        const insertPosition = new Position(ins.lineNumber + 1, 0);
+        editBuilder.insert(insertPosition, ins.snippet);
+      }
     });
 
-    const nextLine = editor.document.lineAt(lineNumber + 1);
-    const newPosition = new Position(
-      lineNumber + 1,
-      nextLine.range.end.character,
-    );
-    editor.selection = new Selection(newPosition, newPosition);
+    // After edit, move selections to the end of the newly inserted snippets.
+    const newSelections = insertions.map((ins) => {
+      const line = editor.document.lineAt(ins.lineNumber + 1);
+      const pos = new Position(ins.lineNumber + 1, line.range.end.character);
+      return new Selection(pos, pos);
+    });
+
+    if (newSelections.length > 0) {
+      editor.selections = newSelections;
+    }
   }
 
   /**

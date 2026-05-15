@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-06-14
+
+### Added
+
+- Add support for inserting log statements with multiple cursors (multi-caret).
+
 ## [1.11.0] - 2026-05-09
 
 ### Changed
@@ -152,7 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of codeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.1...v1.10.0
 [1.9.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.0...v1.9.1

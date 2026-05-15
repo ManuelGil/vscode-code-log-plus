@@ -2,7 +2,7 @@
 	"name": "vscode-code-log-plus",
 	"displayName": "CodeLog+ - Console Log & Debug for Any Language",
 	"description": "CodeLog+ is a VS Code extension that turbocharges your debugging workflow by automating console log insertion, formatting, navigation, and cleanup across any programming language. Enjoy multi-language support, bulk log operations, tree-view explorer, accessibility-friendly modes, and performance optimizations—all in one developer-friendly tool.",
-	"version": "1.11.0",
+	"version": "1.12.0",
 	"icon": "icon.png",
 	"license": "MIT",
 	"publisher": "imgildev",
@@ -660,10 +660,7 @@
 		"overrides": {
 			"@conventional-changelog/git-client@<2.0.0": ">=2.0.0",
 			"diff@>=6.0.0 <8.0.3": ">=8.0.3",
-			"serialize-javascript@<=7.0.2": ">=7.0.3",
-			"serialize-javascript@<7.0.5": ">=7.0.5",
-			"fast-uri@<=3.1.0": ">=3.1.1",
-			"fast-uri@<=3.1.1": ">=3.1.2"
+			"serialize-javascript@<7.0.5": ">=7.0.5"
 		},
 		"onlyBuiltDependencies": [
 			"esbuild"
