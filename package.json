@@ -654,7 +654,7 @@
 		"ignore": "^7.0.5",
 		"mustache": "^4.2.0",
 		"p-limit": "^7.3.0",
-		"vscode-marketplace-client": "^1.2.2"
+		"vscode-marketplace-client": "^1.2.3"
 	},
 	"pnpm": {
 		"overrides": {
