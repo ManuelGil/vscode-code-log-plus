@@ -12,8 +12,8 @@ import {
 } from 'vscode';
 
 import { EXTENSION_ID, ExtensionConfig } from '../configs';
-import { NodeModel } from '../models';
 import { findFiles, getBaseName, getDirName, openDocument } from '../helpers';
+import { NodeModel } from '../models';
 
 /**
  * Manages the list of log files in the workspace.

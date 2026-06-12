@@ -405,9 +405,7 @@ export class LogController {
       const scopeRange = this.getScopeRange(editor, scope, symbols);
 
       if (scope === 'selection' && !scopeRange) {
-        window.showInformationMessage(
-          l10n.t('No active selection available'),
-        );
+        window.showInformationMessage(l10n.t('No active selection available'));
         return null;
       }
 
