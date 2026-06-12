@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Unreleased]
+
+## [1.12.1] - 2026-06-12
+
+### Changed
+
+- Scan each workspace file with its own language rules so mixed-language projects list the correct log entries.
+- Improve log file discovery in local and remote workspaces, including large projects.
+- Use "CodeLog+" as the command palette category for all extension commands.
+
+### Fixed
+
+- Notify you when selection scope is chosen but nothing is selected.
+- Refresh the workspace log tree reliably after file changes.
+- Label root-level files correctly in the workspace log tree.
+
 ## [1.12.0] - 2026-06-14
 
 ### Added
@@ -156,9 +172,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of codeLog+ extension
+- Initial release of CodeLog+ extension
 
-[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/ManuelGil/vscode-code-log-plus/compare/v1.9.1...v1.10.0

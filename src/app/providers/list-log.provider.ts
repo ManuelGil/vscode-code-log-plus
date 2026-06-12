@@ -10,7 +10,6 @@ import {
 
 import { EXTENSION_ID } from '../configs';
 import { ListLogController } from '../controllers';
-import { escapeRegExp } from '../helpers';
 import { NodeModel } from '../models';
 import { LogService } from '../services';
 
@@ -247,16 +246,11 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
    * @returns {Promise<NodeModel[]>} - The list of files
    */
   private async getListLogs(): Promise<NodeModel[]> {
-    const { defaultLanguage } = this.controller.config;
     const files = await this.controller.getFiles();
 
     if (!files) {
       return [];
     }
-
-    const resolvedCommand = this.service.getLogCommand(defaultLanguage);
-    const escapedCommand = escapeRegExp(resolvedCommand);
-    const logPattern = new RegExp(`${escapedCommand}\\s*\\(`);
 
     const { default: pLimit } = await import('p-limit');
     const limit = pLimit(2);
@@ -270,32 +264,32 @@ export class ListLogProvider implements TreeDataProvider<NodeModel> {
 
           try {
             const document = await workspace.openTextDocument(file.resourceUri);
+            const logEntries = this.service.findLogEntries(
+              document.getText(),
+              document.languageId,
+            );
 
             const children: NodeModel[] = [];
 
-            for (let i = 0; i < document.lineCount; i++) {
-              const text = document.lineAt(i).text;
-
-              if (logPattern.test(text)) {
-                const lineNumber = i + 1; // Display is 1-based
-                const child = new NodeModel(
-                  text.trim(),
-                  new ThemeIcon('debug-breakpoint-log'),
-                  {
-                    command: `${EXTENSION_ID}.listLogView.gotoLine`,
-                    title: text.trim(),
-                    arguments: [file.resourceUri, i],
-                  },
-                  file.resourceUri,
-                  'log',
-                );
-                child.description = `Ln ${lineNumber}`;
-                child.tooltip = `${workspace.asRelativePath(
-                  file.resourceUri,
-                )}:${lineNumber}\n${text.trim()}`;
-                child.line = i;
-                children.push(child);
-              }
+            for (const entry of logEntries) {
+              const lineNumber = entry.line;
+              const child = new NodeModel(
+                entry.fullText,
+                new ThemeIcon('debug-breakpoint-log'),
+                {
+                  command: `${EXTENSION_ID}.listLogView.gotoLine`,
+                  title: entry.fullText,
+                  arguments: [file.resourceUri, lineNumber - 1],
+                },
+                file.resourceUri,
+                'log',
+              );
+              child.description = `Ln ${lineNumber}`;
+              child.tooltip = `${workspace.asRelativePath(
+                file.resourceUri,
+              )}:${lineNumber}\n${entry.fullText}`;
+              child.line = lineNumber - 1;
+              children.push(child);
             }
 
             file.setChildren(children);

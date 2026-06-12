@@ -398,67 +398,67 @@
 			{
 				"command": "codeLogPlus.insertLog",
 				"title": "%codeLogPlus.insertLog.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.editLogs",
 				"title": "%codeLogPlus.editLogs.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.removeLogs",
 				"title": "%codeLogPlus.removeLogs.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.highlightLogs",
 				"title": "%codeLogPlus.highlightLogs.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.clearHighlights",
 				"title": "%codeLogPlus.clearHighlights.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.commentLogs",
 				"title": "%codeLogPlus.commentLogs.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.uncommentLogs",
 				"title": "%codeLogPlus.uncommentLogs.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.listLogView.openContainingFolder",
 				"title": "%codeLogPlus.listLogView.openContainingFolder.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.listLogView.revealFile",
 				"title": "%codeLogPlus.listLogView.revealFile.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.listLogView.copyPath",
 				"title": "%codeLogPlus.listLogView.copyPath.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.listLogView.gotoLineFromNode",
 				"title": "%codeLogPlus.listLogView.gotoLineFromNode.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.listLogView.copyLogText",
 				"title": "%codeLogPlus.listLogView.copyLogText.title%",
-				"category": "codeLog+"
+				"category": "CodeLog+"
 			},
 			{
 				"command": "codeLogPlus.listLogView.refreshList",
 				"title": "%codeLogPlus.listLogView.refreshList.title%",
-				"category": "codeLog+",
+				"category": "CodeLog+",
 				"icon": "$(refresh)"
 			}
 		],

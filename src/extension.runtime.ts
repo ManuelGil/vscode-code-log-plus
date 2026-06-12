@@ -140,8 +140,10 @@ F   */
     this.registerWorkspaceCommands();
     this.registerLogCommands();
     this.registerHighlightCommands();
-    this.registerListLogCommands();
-    this.registerListLogEvents();
+    const listLogProvider = this.registerListLogCommands();
+    if (listLogProvider) {
+      this.registerListLogEvents(listLogProvider);
+    }
   }
 
   /**
@@ -608,9 +610,9 @@ F   */
     });
   }
 
-  private registerListLogCommands(): void {
+  private registerListLogCommands(): ListLogProvider | undefined {
     if (!this.extensionConfig) {
-      return;
+      return undefined;
     }
 
     const logService = new LogService(this.extensionConfig);
@@ -680,17 +682,11 @@ F   */
     });
 
     this.extensionContext.subscriptions.push(listLogTreeView, listLogProvider);
+
+    return listLogProvider;
   }
 
-  private registerListLogEvents(): void {
-    if (!this.extensionConfig) {
-      return;
-    }
-
-    const logService = new LogService(this.extensionConfig);
-    const listLogController = new ListLogController(this.extensionConfig);
-    const listLogProvider = new ListLogProvider(listLogController, logService);
-
+  private registerListLogEvents(listLogProvider: ListLogProvider): void {
     let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
 
     const scheduleRefresh = () => {

@@ -182,6 +182,8 @@ Navigate every debug statement across your entire workspace with a single sideba
 - **Hierarchical Explorer**
   - Logs are grouped by file
   - Collapsible nodes let you drill down to specific files
+- **Language-aware scan**
+  - Each file is scanned with its own language rules so mixed-language workspaces stay accurate
 - **Instant Jump-To-Code**
   - Click any entry to open the file and position your cursor exactly at the log statement
 

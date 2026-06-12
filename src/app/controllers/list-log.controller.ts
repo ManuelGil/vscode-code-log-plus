@@ -1,7 +1,3 @@
-import FastGlob from 'fast-glob';
-import { existsSync, readFileSync } from 'fs';
-import ignore from 'ignore';
-import { join, relative } from 'path';
 import {
   commands,
   env,
@@ -17,6 +13,7 @@ import {
 
 import { EXTENSION_ID, ExtensionConfig } from '../configs';
 import { NodeModel } from '../models';
+import { findFiles, getBaseName, getDirName, openDocument } from '../helpers';
 
 /**
  * Manages the list of log files in the workspace.
@@ -73,15 +70,15 @@ export class ListLogController {
       : [excludedFilePatterns];
 
     for (const folder of folders) {
-      const result = await this.findFiles(
-        folder,
-        fileExtensionPattern,
-        fileExclusionPatterns,
-        false, // disable recursive search
-        maxSearchRecursionDepth,
-        supportsHiddenFiles,
-        preserveGitignoreSettings,
-      );
+      const result = await findFiles({
+        baseDirectoryPath: folder,
+        includeFilePatterns: fileExtensionPattern,
+        excludedPatterns: fileExclusionPatterns,
+        disableRecursive: false,
+        maxRecursionDepth: maxSearchRecursionDepth,
+        includeDotfiles: supportsHiddenFiles,
+        enableGitignoreDetection: preserveGitignoreSettings,
+      });
 
       files.push(...result);
     }
@@ -93,12 +90,12 @@ export class ListLogController {
 
       for (const file of files) {
         const path = workspace.asRelativePath(file.fsPath);
-        let filename = path.split('/').pop();
+        let filename = getBaseName(path);
 
         if (filename && showFilePathInResults) {
-          const folder = path.split('/').slice(0, -1).join('/');
+          const folder = getDirName(path);
 
-          filename += folder ? ` (${folder})` : ' (root)';
+          filename += folder && folder !== '.' ? ` (${folder})` : ' (root)';
         }
 
         // Use resourceUri-based icon (native file icon) and attach helpful tooltip/context
@@ -128,10 +125,12 @@ export class ListLogController {
    * Opens the specified file in the VSCode editor.
    * @param {Uri} uri - File Uri to open.
    */
-  openFile(uri: Uri) {
-    workspace.openTextDocument(uri).then((filename) => {
-      window.showTextDocument(filename);
-    });
+  async openFile(uri: Uri) {
+    try {
+      await openDocument(uri);
+    } catch {
+      // Ignore failures to open; caller will handle if needed
+    }
   }
 
   /**
@@ -139,17 +138,18 @@ export class ListLogController {
    * @param {Uri} uri - File Uri to open.
    * @param {number} line - Line number to navigate to.
    */
-  gotoLine(uri: Uri, line: number) {
-    workspace.openTextDocument(uri).then((document) => {
-      window.showTextDocument(document).then((editor) => {
-        const pos = new Position(line, 0);
-        editor.revealRange(
-          new Range(pos, pos),
-          TextEditorRevealType.InCenterIfOutsideViewport,
-        );
-        editor.selection = new Selection(pos, pos);
-      });
-    });
+  async gotoLine(uri: Uri, line: number) {
+    try {
+      const editor = await openDocument(uri);
+      const pos = new Position(line, 0);
+      editor.revealRange(
+        new Range(pos, pos),
+        TextEditorRevealType.InCenterIfOutsideViewport,
+      );
+      editor.selection = new Selection(pos, pos);
+    } catch {
+      // Ignore failures to open/navigate
+    }
   }
 
   /**
@@ -282,84 +282,5 @@ export class ListLogController {
     }
 
     return undefined;
-  }
-
-  /**
-   * Searches for files in a directory matching specified patterns with optimized performance.
-   * @param {string} baseDir - Absolute path to the base directory to search in.
-   * @param {string[]} includeFilePatterns - Glob patterns for files to include (e.g. ['**\/*.ts']).
-   * @param {string[]} excludedPatterns - Glob patterns for files or directories to exclude.
-   * @param {boolean} disableRecursive - When true, limits search to the immediate directory.
-   * @param {number} deep - Maximum depth for recursive search (0 = unlimited).
-   * @param {boolean} includeDotfiles - When true, includes files and directories starting with a dot.
-   * @param {boolean} enableGitignoreDetection - When true, respects rules in .gitignore files.
-   * @returns {Promise<Uri[]>} Array of VS Code Uri objects for matched files.
-   * @example const tsFiles = await this.findFiles('/path/to/dir', ['**\/*.ts'], ['**\/node_modules/**']);
-   */
-  private async findFiles(
-    baseDir: string,
-    includeFilePatterns: string[],
-    excludedPatterns: string[] = [],
-    disableRecursive: boolean = false,
-    deep: number = 0,
-    includeDotfiles: boolean = false,
-    enableGitignoreDetection: boolean = false,
-  ): Promise<Uri[]> {
-    try {
-      // Check if any include patterns were provided
-      if (!includeFilePatterns.length) {
-        return [];
-      }
-
-      // If we need to respect .gitignore, we need to load it
-      let gitignore;
-      if (enableGitignoreDetection) {
-        const gitignorePath = join(baseDir, '.gitignore');
-        // Load .gitignore if it exists
-        if (existsSync(gitignorePath)) {
-          gitignore = ignore().add(readFileSync(gitignorePath, 'utf8'));
-        }
-      }
-
-      // Configure fast-glob options with optimizations for large projects
-      const options = {
-        cwd: baseDir, // Set the base directory for searching
-        absolute: true, // Return absolute paths for files found
-        onlyFiles: true, // Match only files, not directories
-        dot: includeDotfiles, // Include the files and directories starting with a dot
-        deep: disableRecursive ? 1 : deep === 0 ? undefined : deep, // Set the recursion depth
-        ignore: excludedPatterns, // Set the patterns to ignore files and directories
-        followSymbolicLinks: false, // Don't follow symlinks for better performance
-        cache: true, // Enable cache for better performance in large projects
-        stats: false, // Don't return stats objects for better performance
-        throwErrorOnBrokenSymbolicLink: false, // Don't throw on broken symlinks
-        objectMode: false, // Use string mode for better performance
-      };
-
-      // Use fast-glob to find matching files
-      let foundFilePaths = await FastGlob(includeFilePatterns, options);
-
-      // Apply gitignore filtering if needed
-      if (gitignore) {
-        foundFilePaths = foundFilePaths.filter(
-          (filePath: string) => !gitignore.ignores(relative(baseDir, filePath)),
-        );
-      }
-
-      // Convert file paths to VS Code Uri objects
-      return foundFilePaths
-        .sort()
-        .map((filePath: string) => Uri.file(filePath));
-    } catch (error) {
-      const errorDetails =
-        error instanceof Error
-          ? { message: error.message, stack: error.stack }
-          : { message: String(error) };
-
-      const message = l10n.t('Error finding files: {0}', errorDetails.message);
-      window.showErrorMessage(message);
-
-      return [];
-    }
   }
 }
