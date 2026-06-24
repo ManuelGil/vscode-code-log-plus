@@ -637,10 +637,10 @@
 		"@commitlint/config-conventional": "^20.5.3",
 		"@types/mocha": "^10.0.10",
 		"@types/mustache": "^4.2.6",
-		"@types/node": "^22.19.21",
+		"@types/node": "^22.20.0",
 		"@types/vscode": "^1.102.0",
 		"@vscode/l10n-dev": "^0.0.35",
-		"@vscode/test-cli": "^0.0.12",
+		"@vscode/test-cli": "^0.0.15",
 		"@vscode/test-electron": "^2.5.2",
 		"esbuild": "^0.28.1",
 		"glob": "^13.0.6",
@@ -662,7 +662,8 @@
 		"overrides": {
 			"@conventional-changelog/git-client@<2.0.0": ">=2.0.0",
 			"diff@>=6.0.0 <8.0.3": ">=8.0.3",
-			"serialize-javascript@>=5.0.0 <7.0.5": ">=7.0.5"
+			"serialize-javascript@>=5.0.0 <7.0.5": ">=7.0.5",
+			"markdown-it@<=14.1.1": ">=14.2.0"
 		},
 		"onlyBuiltDependencies": [
 			"esbuild"
