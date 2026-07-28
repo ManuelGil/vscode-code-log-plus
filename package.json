@@ -632,7 +632,7 @@
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.4",
+		"@biomejs/biome": "2.5.5",
 		"@commitlint/cli": "^20.5.3",
 		"@commitlint/config-conventional": "^20.5.3",
 		"@types/mocha": "^10.0.10",
@@ -646,7 +646,7 @@
 		"glob": "^13.0.6",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"minimatch": "^10.2.5",
+		"minimatch": "^10.2.6",
 		"mocha": "^11.7.6",
 		"rimraf": "^6.1.3",
 		"typescript": "^5.9.3"
@@ -656,7 +656,7 @@
 		"ignore": "^7.0.6",
 		"mustache": "^4.2.0",
 		"p-limit": "^7.3.1",
-		"vscode-marketplace-client": "^1.2.4"
+		"vscode-marketplace-client": "^1.2.5"
 	},
 	"pnpm": {
 		"overrides": {
